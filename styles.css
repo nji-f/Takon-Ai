@@ -26,11 +26,25 @@ body {
     padding: 30px;
 }
 
-.docs-container { max-width: 500px; width: 90%; }
-.docs-container input { width: 100%; margin-bottom: 15px; padding: 12px; border-radius: 8px; border: none; box-sizing: border-box; }
-.btn-group { display: flex; gap: 10px; }
-button { flex: 1; padding: 12px; border-radius: 8px; border: none; background: var(--accent); color: white; cursor: pointer; font-weight: bold; }
-button.btn-outline { background: transparent; border: 1px solid var(--accent); }
+/* Halaman login */
+.glass-container input {
+    width: 100%;
+    margin-bottom: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    box-sizing: border-box;
+}
+button {
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent);
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    margin-right: 10px;
+}
 
 /* Chat Layout */
 .chat-layout { display: flex; width: 90vw; height: 85vh; padding: 15px; gap: 15px; }
@@ -44,3 +58,5 @@ button.btn-outline { background: transparent; border: 1px solid var(--accent); }
 .message { margin-bottom: 10px; padding: 10px 15px; border-radius: 12px; max-width: 80%; }
 .msg-user { background: var(--accent); margin-left: auto; border-bottom-right-radius: 2px; }
 .msg-ai { background: rgba(255,255,255,0.1); margin-right: auto; border-bottom-left-radius: 2px; }
+.typing-indicator { font-style: italic; opacity: 0.8; }
+.btn-logout { margin-top: auto; background: rgba(255,80,80,0.8); }
