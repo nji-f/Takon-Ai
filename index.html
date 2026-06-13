@@ -73,15 +73,15 @@
             background: var(--header-glass);
             border-bottom: 1px solid var(--glass-border);
             box-shadow: var(--glass-shadow);
-            padding: 12px 24px;
+            padding: 10px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-shrink: 0;
             border-radius: 0 0 var(--radius-sm) var(--radius-sm);
             margin: 0 16px;
-            position: relative;
-            top: 0;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .brand {
@@ -120,18 +120,19 @@
             font-weight: 500;
         }
 
-        .actions {
+        .nav-links {
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
-        .btn {
+        .nav-btn {
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
             color: var(--text);
-            padding: 10px 16px;
+            padding: 10px 18px;
             border-radius: 30px;
             cursor: pointer;
             font-weight: 600;
@@ -140,17 +141,29 @@
             transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
             gap: 6px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            white-space: nowrap;
         }
 
-        .btn:hover {
+        .nav-btn:hover {
             background: var(--primary);
             color: white;
             border-color: var(--primary);
             box-shadow: 0 8px 20px var(--primary-glow);
             transform: translateY(-1px);
+        }
+
+        .nav-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 6px 16px var(--primary-glow);
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
         }
 
         .btn-icon {
@@ -159,24 +172,27 @@
             padding: 0;
             border-radius: 50%;
             font-size: 1.1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        .btn-danger {
-            border-color: #e05555;
-            color: #e05555;
-        }
-
-        .btn-danger:hover {
-            background: #e05555;
+        .btn-icon:hover {
+            background: var(--primary);
             color: white;
-            box-shadow: 0 8px 20px rgba(224,85,85,0.3);
+            box-shadow: 0 6px 16px var(--primary-glow);
         }
 
-        /* Chat container */
+        /* Main content */
         .main {
             flex: 1;
-            display: flex;
-            flex-direction: column;
             max-width: 900px;
             width: 100%;
             margin: 12px auto 0;
@@ -188,8 +204,22 @@
             border-bottom: none;
             box-shadow: var(--glass-shadow);
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
+        .page {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        /* Chat page styles (same as before) */
         .messages-container {
             flex: 1;
             overflow-y: auto;
@@ -254,7 +284,6 @@
             box-shadow: 0 6px 16px var(--primary-glow);
         }
 
-        /* Messages */
         .message {
             display: flex;
             gap: 8px;
@@ -325,7 +354,6 @@
             text-align: right;
         }
 
-        /* Glass input */
         .input-area {
             padding: 12px 16px 20px;
             background: transparent;
@@ -395,7 +423,89 @@
             opacity: 0.7;
         }
 
-        /* Toast */
+        /* Docs & Profile page common */
+        .content-page {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .content-page h1 {
+            font-size: 1.8rem;
+            margin-bottom: 16px;
+        }
+
+        .content-page h2 {
+            font-size: 1.3rem;
+            margin: 24px 0 12px;
+        }
+
+        .content-page p,
+        .content-page li {
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .content-page ul {
+            padding-left: 20px;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 24px;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            margin: 0 auto 16px;
+            box-shadow: 0 8px 20px var(--primary-glow);
+        }
+
+        .profile-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .profile-form input,
+        .profile-form textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            font-family: var(--font);
+            color: var(--text);
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .profile-form input:focus,
+        .profile-form textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(61,45,166,0.2);
+        }
+
+        .profile-form button {
+            align-self: flex-start;
+        }
+
         .toast-container {
             position: fixed;
             top: 20px;
@@ -428,38 +538,34 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Scrollbar */
-        .messages-container::-webkit-scrollbar { width: 5px; }
-        .messages-container::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
+        .messages-container::-webkit-scrollbar,
+        .content-page::-webkit-scrollbar {
+            width: 5px;
+        }
 
-        /* Markdown within bubble */
-        .bubble pre {
-            background: rgba(0,0,0,0.06);
-            padding: 12px;
-            border-radius: 12px;
-            overflow-x: auto;
-            margin: 8px 0;
-            position: relative;
-        }
-        [data-theme="dark"] .bubble pre {
-            background: rgba(255,255,255,0.05);
-        }
-        .copy-btn {
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            cursor: pointer;
+        .messages-container::-webkit-scrollbar-thumb,
+        .content-page::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.15);
+            border-radius: 10px;
         }
 
         @media (max-width: 600px) {
-            .header { margin: 0 8px; padding: 10px 16px; }
-            .main { margin: 8px 4px 0; }
+            .header {
+                margin: 0 8px;
+                padding: 10px 12px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .nav-links {
+                width: 100%;
+                justify-content: space-around;
+            }
+            .main {
+                margin: 8px 4px 0;
+            }
+            .content-page {
+                padding: 16px;
+            }
         }
     </style>
 </head>
@@ -473,37 +579,101 @@
                 <div class="subtitle">Asisten Cerdas</div>
             </div>
         </div>
+        <div class="nav-links">
+            <button class="nav-btn active" data-page="chat">💬 Chat</button>
+            <button class="nav-btn" data-page="docs">📚 Dokumentasi</button>
+            <button class="nav-btn" data-page="profile">👤 Profil</button>
+        </div>
         <div class="actions">
-            <button class="btn btn-icon" id="themeToggle" title="Ganti tema">🌓</button>
-            <button class="btn btn-icon" id="clearChat" title="Hapus percakapan">🗑️</button>
+            <button class="btn-icon" id="themeToggle" title="Ganti tema">🌓</button>
         </div>
     </header>
 
     <div class="main">
-        <div class="messages-container" id="messagesContainer">
-            <div class="welcome" id="welcomeScreen">
-                <div class="welcome-icon">🤖</div>
-                <div class="welcome-title">Halo! Aku Takon AI</div>
-                <div class="welcome-desc">
-                    Tanya apa saja dalam bahasa Indonesia. Aku siap bantu jawab, kasih ide, atau temani ngobrol.
+        <!-- Chat Page -->
+        <div class="page active" id="chat-page">
+            <div class="messages-container" id="messagesContainer">
+                <div class="welcome" id="welcomeScreen">
+                    <div class="welcome-icon">🤖</div>
+                    <div class="welcome-title">Halo! Aku Takon AI</div>
+                    <div class="welcome-desc">
+                        Tanya apa saja dalam bahasa Indonesia. Aku siap bantu jawab, kasih ide, atau temani ngobrol.
+                    </div>
+                    <div class="chips">
+                        <button class="chip" data-prompt="Jelaskan budaya Betawi secara singkat">🎭 Budaya Betawi</button>
+                        <button class="chip" data-prompt="Buat puisi tentang senja di pantai">🌅 Puisi Senja</button>
+                        <button class="chip" data-prompt="Apa itu machine learning? Jelaskan sederhana">🧠 Machine Learning</button>
+                        <button class="chip" data-prompt="Tulis kode HTML form kontak sederhana">💻 Kode HTML</button>
+                        <button class="chip" data-prompt="Rekomendasi kuliner khas Bandung">🍜 Kuliner Bandung</button>
+                        <button class="chip" data-prompt="Tips belajar efektif untuk ujian">📚 Tips Ujian</button>
+                    </div>
                 </div>
-                <div class="chips">
-                    <button class="chip" data-prompt="Jelaskan budaya Betawi secara singkat">🎭 Budaya Betawi</button>
-                    <button class="chip" data-prompt="Buat puisi tentang senja di pantai">🌅 Puisi Senja</button>
-                    <button class="chip" data-prompt="Apa itu machine learning? Jelaskan sederhana">🧠 Machine Learning</button>
-                    <button class="chip" data-prompt="Tulis kode HTML form kontak sederhana">💻 Kode HTML</button>
-                    <button class="chip" data-prompt="Rekomendasi kuliner khas Bandung">🍜 Kuliner Bandung</button>
-                    <button class="chip" data-prompt="Tips belajar efektif untuk ujian">📚 Tips Ujian</button>
+            </div>
+            <div class="input-area">
+                <div class="input-wrap">
+                    <textarea id="messageInput" rows="1" placeholder="Ketik pertanyaanmu..." maxlength="8000"></textarea>
+                    <button class="send-btn" id="sendBtn">➤</button>
+                </div>
+                <div class="input-hint">Enter untuk kirim · Shift+Enter untuk baris baru</div>
+            </div>
+        </div>
+
+        <!-- Dokumentasi Page -->
+        <div class="page" id="docs-page">
+            <div class="content-page">
+                <h1>📚 Dokumentasi Takon AI</h1>
+                <div class="card">
+                    <h2>🤖 Apa itu Takon AI?</h2>
+                    <p>Takon AI adalah asisten virtual berbasis kecerdasan buatan yang dapat menjawab berbagai pertanyaan, membuat konten, menerjemahkan, menulis kode, dan banyak lagi. Dibangun dengan teknologi model bahasa besar (LLM) yang diakses melalui Groq API.</p>
+                </div>
+                <div class="card">
+                    <h2>🚀 Cara Menggunakan</h2>
+                    <ul>
+                        <li>Ketik pertanyaan atau perintah di kotak input pada halaman <strong>Chat</strong>.</li>
+                        <li>Gunakan <strong>Enter</strong> untuk mengirim, dan <strong>Shift+Enter</strong> untuk membuat baris baru.</li>
+                        <li>Kamu juga bisa mengklik chip saran untuk memulai percakapan.</li>
+                        <li>AI akan merespons secara real-time dengan streaming teks.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h2>✨ Fitur Unggulan</h2>
+                    <ul>
+                        <li><strong>Chat Streaming:</strong> Jawaban muncul kata demi kata.</li>
+                        <li><strong>Multi-bahasa:</strong> Meskipun fokus bahasa Indonesia, AI bisa memahami berbagai bahasa.</li>
+                        <li><strong>Kode & Markdown:</strong> Balasan mendukung format teks kaya, blok kode dengan tombol salin.</li>
+                        <li><strong>Mode Gelap:</strong> Klik ikon bulan/matahari untuk beralih tema.</li>
+                        <li><strong>Profil Pengguna:</strong> Sesuaikan nama dan bio kamu di halaman Profil.</li>
+                        <li><strong>Keamanan:</strong> API key tidak pernah dikirim ke browser, semua komunikasi via server Vercel.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h2>🔧 Teknologi</h2>
+                    <p>Frontend murni HTML/CSS/JS dengan desain glassmorphism. Backend menggunakan Vercel Edge Function yang meneruskan permintaan ke Groq API. Model default: <code>llama-3.1-8b-instant</code>.</p>
                 </div>
             </div>
         </div>
 
-        <div class="input-area">
-            <div class="input-wrap">
-                <textarea id="messageInput" rows="1" placeholder="Ketik pertanyaanmu..." maxlength="8000"></textarea>
-                <button class="send-btn" id="sendBtn">➤</button>
+        <!-- Profil Page -->
+        <div class="page" id="profile-page">
+            <div class="content-page">
+                <h1>👤 Profil Kamu</h1>
+                <div class="card" style="text-align: center;">
+                    <div class="profile-avatar" id="profileAvatar">K</div>
+                    <h2 id="profileNameDisplay">Pengguna Takon</h2>
+                    <p id="profileBioDisplay" style="color: var(--text-secondary);">Bio singkat tentang dirimu.</p>
+                </div>
+                <div class="card">
+                    <h2>✏️ Edit Profil</h2>
+                    <form class="profile-form" id="profileForm">
+                        <label>Nama</label>
+                        <input type="text" id="profileName" placeholder="Nama kamu" maxlength="30">
+                        <label>Bio</label>
+                        <textarea id="profileBio" rows="3" placeholder="Tulis sesuatu tentang dirimu..." maxlength="120"></textarea>
+                        <button type="submit" class="nav-btn">💾 Simpan Perubahan</button>
+                    </form>
+                    <p style="margin-top: 12px; font-size: 0.8rem; color: var(--text-secondary);">Data profil hanya disimpan di browser kamu.</p>
+                </div>
             </div>
-            <div class="input-hint">Enter untuk kirim · Shift+Enter untuk baris baru</div>
         </div>
     </div>
 
@@ -511,26 +681,43 @@
 
     <script>
         (() => {
+            // ── State ──
             const LS_MESSAGES = 'takon-ai-messages';
             const LS_THEME = 'takon-ai-theme';
+            const LS_PROFILE = 'takon-ai-profile';
 
             const state = {
                 messages: JSON.parse(localStorage.getItem(LS_MESSAGES) || '[]'),
                 theme: localStorage.getItem(LS_THEME) || 'light',
+                profile: JSON.parse(localStorage.getItem(LS_PROFILE) || '{"name":"Pengguna Takon","bio":"Bio singkat tentang dirimu."}'),
                 isStreaming: false,
                 abortController: null,
-                model: 'llama-3.1-8b-instant'
+                model: 'llama-3.1-8b-instant',
+                currentPage: 'chat'
             };
 
             const $ = (s) => document.querySelector(s);
+            const $$ = (s) => document.querySelectorAll(s);
+
+            // DOM refs
             const container = $('#messagesContainer');
             const welcome = $('#welcomeScreen');
             const input = $('#messageInput');
             const sendBtn = $('#sendBtn');
             const themeToggle = $('#themeToggle');
-            const clearBtn = $('#clearChat');
             const toastContainer = $('#toastContainer');
+            const navButtons = $$('.nav-btn');
+            const pages = $$('.page');
 
+            // Profile elements
+            const profileAvatar = $('#profileAvatar');
+            const profileNameDisplay = $('#profileNameDisplay');
+            const profileBioDisplay = $('#profileBioDisplay');
+            const profileForm = $('#profileForm');
+            const profileNameInput = $('#profileName');
+            const profileBioInput = $('#profileBio');
+
+            // ── Theme ──
             function applyTheme(t) {
                 state.theme = t;
                 document.body.setAttribute('data-theme', t);
@@ -538,11 +725,44 @@
                 themeToggle.textContent = t === 'dark' ? '☀️' : '🌓';
             }
 
+            // ── Navigation ──
+            function switchPage(pageId) {
+                state.currentPage = pageId;
+                pages.forEach(p => p.classList.remove('active'));
+                const targetPage = document.getElementById(`${pageId}-page`);
+                if (targetPage) targetPage.classList.add('active');
+
+                navButtons.forEach(btn => {
+                    const btnPage = btn.dataset.page;
+                    btn.classList.toggle('active', btnPage === pageId);
+                });
+
+                if (pageId === 'profile') loadProfileToForm();
+            }
+
+            navButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const pageId = btn.dataset.page;
+                    switchPage(pageId);
+                });
+            });
+
+            // ── Toast ──
+            function showToast(msg) {
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.textContent = msg;
+                toast.addEventListener('click', () => toast.remove());
+                toastContainer.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }
+
+            // ── Chat Functions ──
             function saveMessages() {
                 localStorage.setItem(LS_MESSAGES, JSON.stringify(state.messages.slice(-150)));
             }
 
-            function renderAll() {
+            function renderAllMessages() {
                 container.querySelectorAll('.message').forEach(el => el.remove());
                 state.messages.forEach((m,i) => renderMessage(m,i));
                 updateWelcome();
@@ -565,13 +785,10 @@
 
             function formatContent(text) {
                 let html = escapeHtml(text);
-                // code blocks
                 html = html.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
                     return `<pre><code>${escapeHtml(code.trim())}</code><button class="copy-btn" data-code="${escapeHtml(code.trim())}">📋</button></pre>`;
                 });
-                // inline code
                 html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-                // bold/italic
                 html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
                 html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
                 html = html.replace(/\n/g, '<br>');
@@ -689,7 +906,35 @@
                 input.style.height = Math.min(input.scrollHeight, 140) + 'px';
             }
 
-            // Event listeners
+            // ── Profile Functions ──
+            function loadProfileToForm() {
+                profileNameInput.value = state.profile.name || 'Pengguna Takon';
+                profileBioInput.value = state.profile.bio || '';
+                updateProfileDisplay();
+            }
+
+            function updateProfileDisplay() {
+                const name = state.profile.name || 'Pengguna Takon';
+                const bio = state.profile.bio || 'Bio singkat tentang dirimu.';
+                profileNameDisplay.textContent = name;
+                profileBioDisplay.textContent = bio;
+                // Avatar ambil huruf pertama nama
+                profileAvatar.textContent = name.charAt(0).toUpperCase();
+            }
+
+            function saveProfile(e) {
+                e.preventDefault();
+                const name = profileNameInput.value.trim() || 'Pengguna Takon';
+                const bio = profileBioInput.value.trim() || '';
+                state.profile = { name, bio };
+                localStorage.setItem(LS_PROFILE, JSON.stringify(state.profile));
+                updateProfileDisplay();
+                showToast('Profil berhasil disimpan!');
+            }
+
+            profileForm.addEventListener('submit', saveProfile);
+
+            // ── Event Listeners ──
             sendBtn.addEventListener('click', () => state.isStreaming ? state.abortController?.abort() : sendMessage());
             input.addEventListener('keydown', e => {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -702,14 +947,6 @@
                 updateSendBtn();
             });
             themeToggle.addEventListener('click', () => applyTheme(state.theme === 'dark' ? 'light' : 'dark'));
-            clearBtn.addEventListener('click', () => {
-                if (state.messages.length && confirm('Hapus semua percakapan?')) {
-                    state.messages = [];
-                    saveMessages();
-                    container.querySelectorAll('.message').forEach(e => e.remove());
-                    updateWelcome();
-                }
-            });
 
             document.addEventListener('click', e => {
                 if (e.target.classList.contains('copy-btn')) {
@@ -719,7 +956,7 @@
                     setTimeout(() => e.target.textContent = '📋', 1500);
                 }
                 const chip = e.target.closest('.chip');
-                if (chip && !state.isStreaming) {
+                if (chip && !state.isStreaming && state.currentPage === 'chat') {
                     const prompt = chip.dataset.prompt;
                     input.value = prompt;
                     autoResize();
@@ -730,9 +967,12 @@
 
             // Init
             applyTheme(state.theme);
-            renderAll();
+            renderAllMessages();
+            updateProfileDisplay();
+            loadProfileToForm();
             input.focus();
             updateSendBtn();
+            switchPage('chat');
         })();
     </script>
 </body>
