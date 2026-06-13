@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAKON-AI | Docs & Login</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="glass-container docs-container">
+        <h1>Dokumentasi TAKON-AI</h1>
+        <p>Selamat datang di TAKON-AI. Asisten cerdas yang siap membantu menyelesaikan berbagai tugas, mulai dari penulisan kode hingga analisis data tingkat lanjut.</p>
+        <ul>
+            <li>✨ <b>Konteks Memori:</b> Mengingat percakapan sebelumnya.</li>
+            <li>🔒 <b>Aman & Privat:</b> Riwayat obrolan tersimpan di akun Anda.</li>
+            <li>⚡ <b>Cepat & Responsif:</b> Ditenagai mesin analitik terbaik.</li>
+        </ul>
+        <hr>
+        <h2>Masuk untuk Melanjutkan</h2>
+        <input type="email" id="email" placeholder="Email (Username)">
+        <input type="password" id="password" placeholder="Password">
+        <div class="btn-group">
+            <button onclick="login()">Login</button>
+            <button onclick="register()" class="btn-outline">Daftar</button>
+        </div>
+        <p id="auth-msg" class="msg"></p>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
