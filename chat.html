@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAKON-AI Chat</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="glass-container chat-layout">
+        <aside class="sidebar glass-panel">
+            <h3>History Chat</h3>
+            <div id="history-list"></div>
+            <button onclick="logout()" class="btn-logout">Logout</button>
+        </aside>
+        <main class="chat-main glass-panel">
+            <div class="chat-header">
+                <h2>TAKON-AI</h2>
+            </div>
+            <div id="chat-box" class="chat-box"></div>
+            <div class="input-area">
+                <input type="text" id="user-input" placeholder="Tanya TAKON-AI...">
+                <button onclick="sendMessage()">Kirim</button>
+            </div>
+        </main>
+    </div>
+    <script src="app.js"></script>
+    <script>
+        // Cek sesi saat masuk halaman chat
+        window.onload = checkSession;
+    </script>
+</body>
+</html>
