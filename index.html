@@ -78,18 +78,50 @@
             75% { transform: translateY(-60px) scale(1.5); opacity: 0.2; }
         }
 
+        /* Topbar dengan brand */
         .topbar {
-            padding: 14px 24px;
+            padding: 12px 24px;
             display: flex;
             align-items: center;
-            justify-content: flex-end;
-            gap: 10px;
+            justify-content: space-between;
+            gap: 16px;
             flex-shrink: 0;
             position: relative;
             z-index: 10;
             backdrop-filter: var(--glass-blur);
             background: var(--surface);
             border-bottom: 1px solid var(--border);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 700;
+            font-size: 1.3rem;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .btn-icon {
@@ -433,6 +465,19 @@
             .docs-grid { grid-template-columns: 1fr; }
             .main { padding:0 10px 10px; }
             .cta-button { padding: 15px 30px; font-size:1rem; }
+            .topbar {
+                padding: 10px 16px;
+            }
+            .brand {
+                font-size: 1.1rem;
+                gap: 6px;
+            }
+            .brand-logo {
+                width: 30px;
+                height: 30px;
+                border-radius: 8px;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
@@ -442,10 +487,16 @@
     <div class="particles" id="particles"></div>
 
     <!-- Topbar -->
-    <div class="topbar">
-        <button class="btn-danger" id="clearChat" style="display:none;">🗑️ Hapus Chat</button>
-        <button class="btn-icon" id="themeToggle" title="Ganti tema">🌓</button>
-    </div>
+    <header class="topbar">
+        <div class="brand">
+            <div class="brand-logo">T</div>
+            <span>TAKON-AI</span>
+        </div>
+        <div class="topbar-actions">
+            <button class="btn-danger" id="clearChat" style="display:none;">🗑️ Hapus Chat</button>
+            <button class="btn-icon" id="themeToggle" title="Ganti tema">🌓</button>
+        </div>
+    </header>
 
     <!-- Main -->
     <div class="main">
@@ -681,7 +732,6 @@
                 state.isStreaming = true;
                 updateSendBtn();
 
-                // Tampilkan typing indicator
                 const typingEl = document.createElement('div');
                 typingEl.className = 'message ai';
                 typingEl.innerHTML = `<div class="avatar">🤖</div><div class="bubble"><div class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div></div>`;
@@ -702,7 +752,6 @@
                     });
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-                    // Hapus typing indicator
                     const typingIndicator = document.getElementById('typing-indicator');
                     if (typingIndicator) typingIndicator.remove();
 
