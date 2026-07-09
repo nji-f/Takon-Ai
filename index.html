@@ -41,7 +41,6 @@
             -webkit-font-smoothing: antialiased;
             backdrop-filter: blur(2px);
         }
-        /* subtle noise */
         body::before {
             content: '';
             position: fixed;
@@ -56,7 +55,6 @@
         .bg-blob {
             display: none;
         }
-        /* iOS top bar */
         .topbar {
             display: flex;
             align-items: center;
@@ -401,7 +399,6 @@
                 transform: translateY(0);
             }
         }
-        /* Docs - iOS style */
         .docs-hero {
             text-align: center;
             padding: 28px 0 18px;
@@ -589,7 +586,6 @@
             text-decoration: none;
             font-weight: 500;
         }
-        /* Chat */
         .messages-container {
             flex: 1;
             overflow-y: auto;
@@ -717,6 +713,7 @@
             color: var(--text);
             box-shadow: var(--shadow);
             min-width: 0;
+            max-width: 100%;
         }
         .message.user .bubble {
             background: var(--accent);
@@ -747,6 +744,8 @@
             margin: 8px 0 !important;
             border: 0.5px solid var(--border) !important;
             position: relative !important;
+            white-space: pre-wrap;
+            word-break: break-word;
         }
         .bubble pre code {
             font-family: 'SF Mono', 'Fira Code', monospace;
@@ -1249,7 +1248,7 @@
             const MAX_MSGS_PER_SESSION = 150;
             const MAX_SESSIONS = 30;
             const SYSTEM_PROMPT =
-                "Kamu adalah Takon AI, asisten yang cerdas, ramah, dan sangat membantu. Jawab pertanyaan dengan jelas, akurat, dan berikan solusi kreatif. Jangan pernah menolak menjawab kecuali pertanyaan berbahaya atau melanggar hukum. Berikan jawaban panjang yang informatif, contoh, atau langkah-langkah jika relevan. Gunakan bahasa Indonesia yang baik.";
+                "Kamu adalah Takon AI, asisten yang cerdas, ramah, dan sangat membantu. Jawab pertanyaan dengan jelas, akurat, dan berikan solusi kreatif. Jangan pernah menolak menjawab kecuali pertanyaan berbahaya atau melanggar hukum. Berikan jawaban yang panjang, informatif, dan lengkap dengan contoh kode yang utuh dan tidak dipotong. Gunakan bahasa Indonesia yang baik.";
 
             function generateId() {
                 return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
@@ -1261,7 +1260,7 @@
                 theme: 'light',
                 isStreaming: false,
                 abortController: null,
-                model: 'openai/gpt-oss-120b', // <-- model diubah ke GPT-OSS 120B
+                model: 'openai/gpt-oss-120b',
                 currentPage: 'docs',
                 retryMessageId: null,
                 retryContent: null
@@ -1777,8 +1776,10 @@
                 state.isStreaming = true;
                 updateSendBtn();
 
-                // Build messages with system prompt
-                const history = session.messages.filter(m => m.id !== aiMsgId);
+                // Ambil riwayat, batasi 20 pesan terakhir untuk menghindari token overflow
+                const history = session.messages
+                    .filter(m => m.id !== aiMsgId)
+                    .slice(-20); // ambil 20 terakhir
                 const apiMessages = [
                     { role: 'system', content: SYSTEM_PROMPT },
                     ...history.map(m => ({
@@ -1795,7 +1796,9 @@
                         body: JSON.stringify({
                             messages: apiMessages,
                             model: state.model,
-                            stream: true
+                            stream: true,
+                            max_tokens: 4096, // tambahkan max_tokens
+                            temperature: 0.7
                         }),
                         signal: state.abortController.signal
                     });
