@@ -1344,7 +1344,7 @@
                 };
                 session.messages.push(msg);
                 enforceMessageLimit(session);
-                if (role === 'user' && session.messages.length === 1) {
+                if (role === 'user' && session.messages.length === 1 && !session.title) {
                     session.title = content.substring(0, 30) || 'Chat';
                 }
                 saveAll();
@@ -1431,31 +1431,73 @@
                 }
             }
 
+            // Perbaikan formatContent: tidak double escape, simpan kode asli di data-code
             function formatContent(text) {
                 if (!text) return '';
-                let safe = text
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;');
 
-                safe = safe.replace(/```(\w*)\n?([\s\S]*?)```/g, function(match, lang, code) {
-                    const escCode = code
-                        .replace(/&/g, '&amp;')
-                        .replace(/</g, '&lt;')
-                        .replace(/>/g, '&gt;')
-                        .replace(/"/g, '&quot;');
-                    const encoded = encodeURIComponent(escCode);
-                    return '<pre><code>' + escCode + '</code><button class="copy-btn" data-code="' + encoded +
-                        '">Salin</button></pre>';
-                });
+                // Escape karakter HTML untuk keamanan, tapi kita akan tangani code block secara terpisah
+                // Kita pecah berdasarkan code block, lalu escape bagian teks biasa
+                const parts = [];
+                let lastIndex = 0;
+                const regex = /```(\w*)\n?([\s\S]*?)```/g;
+                let match;
 
-                safe = safe.replace(/`([^`]+)`/g,
+                while ((match = regex.exec(text)) !== null) {
+                    // Teks sebelum code block
+                    const before = text.slice(lastIndex, match.index);
+                    if (before) {
+                        parts.push({ type: 'text', content: escapeHtml(before) });
+                    }
+                    // Code block: language dan code
+                    const lang = match[1] || '';
+                    const code = match[2];
+                    // Simpan code asli (belum escape) untuk copy
+                    const rawCode = code;
+                    // Untuk tampilan, kita escape
+                    const escapedCode = escapeHtml(rawCode);
+                    parts.push({ type: 'code', lang: lang, code: rawCode, escapedCode: escapedCode });
+                    lastIndex = match.index + match[0].length;
+                }
+
+                // Sisa teks setelah code block terakhir
+                const after = text.slice(lastIndex);
+                if (after) {
+                    parts.push({ type: 'text', content: escapeHtml(after) });
+                }
+
+                // Jika tidak ada code block sama sekali, kita return teks yang sudah di-escape dengan format markdown sederhana
+                if (parts.length === 1 && parts[0].type === 'text') {
+                    return formatText(parts[0].content);
+                }
+
+                // Bangun hasil
+                let result = '';
+                for (const part of parts) {
+                    if (part.type === 'text') {
+                        result += formatText(part.content);
+                    } else {
+                        // Code block
+                        const encoded = encodeURIComponent(part.code);
+                        result += '<pre><code>' + part.escapedCode +
+                            '</code><button class="copy-btn" data-code="' + encoded + '">Salin</button></pre>';
+                    }
+                }
+                return result;
+            }
+
+            function escapeHtml(str) {
+                return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            }
+
+            function formatText(text) {
+                // text sudah escape
+                let s = text;
+                s = s.replace(/`([^`]+)`/g,
                     '<code style="background:rgba(0,0,0,0.04);padding:2px 8px;border-radius:6px;">$1</code>');
-                safe = safe.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-                safe = safe.replace(/\*(.+?)\*/g, '<em>$1</em>');
-                safe = safe.replace(/\n/g, '<br>');
-                return safe;
+                s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+                s = s.replace(/\*(.+?)\*/g, '<em>$1</em>');
+                s = s.replace(/\n/g, '<br>');
+                return s;
             }
 
             function renderHistoryList() {
@@ -1779,7 +1821,7 @@
                 // Ambil riwayat, batasi 20 pesan terakhir untuk menghindari token overflow
                 const history = session.messages
                     .filter(m => m.id !== aiMsgId)
-                    .slice(-20); // ambil 20 terakhir
+                    .slice(-20);
                 const apiMessages = [
                     { role: 'system', content: SYSTEM_PROMPT },
                     ...history.map(m => ({
@@ -1797,7 +1839,7 @@
                             messages: apiMessages,
                             model: state.model,
                             stream: true,
-                            max_tokens: 4096, // tambahkan max_tokens
+                            max_tokens: 4096,
                             temperature: 0.7
                         }),
                         signal: state.abortController.signal
@@ -1837,7 +1879,7 @@
                     const sessionNow = getCurrentSession();
                     if (sessionNow) {
                         const userMessages = sessionNow.messages.filter(m => m.role === 'user');
-                        if (userMessages.length > 0) {
+                        if (userMessages.length > 0 && !sessionNow.title) {
                             sessionNow.title = userMessages[0].content.substring(0, 30) || 'Chat';
                             saveAll();
                         }
