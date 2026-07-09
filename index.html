@@ -68,7 +68,12 @@
         .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; width: 100%; max-width: 900px; margin: 0 auto; padding: 0 20px 14px; position: relative; z-index: 1; }
         .page { display: flex; flex: 1; flex-direction: column; overflow-y: auto; animation: fadeUp 0.35s ease; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .messages-container { flex:1; overflow-y:auto; padding:12px 4px 16px; display:flex; flex-direction:column; gap:10px; }
+        .messages-container {
+            flex:1; overflow-y:auto; padding:12px 4px 16px; display:flex; flex-direction:column; gap:10px;
+            overflow-anchor: auto;
+            scroll-behavior: smooth;
+            will-change: transform;
+        }
         .welcome { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; }
         .welcome-icon { width: 80px; height: 80px; border-radius: 24px; object-fit: cover; box-shadow: 0 10px 30px rgba(196,167,255,0.3); margin-bottom: 10px; }
         .welcome-title { font-size:1.4rem; font-weight:580; }
@@ -118,7 +123,6 @@
         .retry-btn { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text-soft); padding:5px 16px; border-radius:20px; cursor:pointer; font-size:0.78rem; font-family:var(--font); transition:0.2s; }
         .retry-btn:hover { background:var(--accent-dim); color:var(--accent); border-color:var(--accent); }
 
-        /* Drawer untuk history chat */
         .drawer-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 25;
             opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
@@ -218,7 +222,6 @@
     <div class="blob1 bg-blob"></div>
     <div class="blob2 bg-blob"></div>
 
-    <!-- Drawer untuk history -->
     <div class="drawer-overlay" id="drawerOverlay"></div>
     <div class="drawer" id="drawer">
         <div class="drawer-header">
@@ -297,7 +300,8 @@
                 abortController: null,
                 model: 'openai/gpt-oss-120b',
                 retryMessageId: null,
-                retryContent: null
+                retryContent: null,
+                scrollRAF: null
             };
 
             function loadState() {
@@ -384,7 +388,7 @@
                 saveAll();
                 renderMsg(msg);
                 updateWelcome();
-                scrollBottom();
+                scrollBottom('smooth');
                 renderHistoryList();
                 return msg;
             }
@@ -397,6 +401,8 @@
                 session.messages[idx].content = content;
                 saveAll();
                 updateBubble(msgId, content);
+                // Saat streaming, scroll auto agar tidak smooth berlebihan
+                scrollBottom('auto');
             }
 
             function getMsgById(msgId) {
@@ -426,7 +432,7 @@
                     '<div class="avatar">' + avatarContent + '</div><div><div class="bubble">' + bubbleHtml +
                     '</div><div class="time">' + timeStr + '</div></div>';
                 container.appendChild(el);
-                scrollBottom();
+                scrollBottom('smooth');
             }
 
             function renderAllMessages() {
@@ -438,7 +444,7 @@
                     session.messages.forEach(m => renderMsg(m));
                 }
                 updateWelcome();
-                scrollBottom();
+                scrollBottom('smooth');
             }
 
             function updateBubble(msgId, content) {
@@ -458,11 +464,15 @@
                 }
             }
 
-            function scrollBottom() {
-                const container = document.getElementById('messagesContainer');
-                if (container) {
-                    container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
-                }
+            function scrollBottom(behavior) {
+                if (state.scrollRAF) cancelAnimationFrame(state.scrollRAF);
+                state.scrollRAF = requestAnimationFrame(() => {
+                    const container = document.getElementById('messagesContainer');
+                    if (container) {
+                        container.scrollTo({ top: container.scrollHeight, behavior: behavior });
+                    }
+                    state.scrollRAF = null;
+                });
             }
 
             function formatContent(text) {
@@ -821,7 +831,6 @@
                                 if (delta !== undefined && delta !== null) {
                                     full += delta;
                                     updateMsgContent(aiMsgId, full);
-                                    scrollBottom();
                                 }
                             } catch (_) {}
                         }
@@ -856,6 +865,8 @@
                     renderHistoryList();
                     const inp = document.getElementById('messageInput');
                     if (inp) inp.focus();
+                    // scroll sekali lagi dengan smooth setelah selesai
+                    scrollBottom('smooth');
                 }
             }
 
