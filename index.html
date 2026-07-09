@@ -286,7 +286,7 @@
             const MAX_MSGS_PER_SESSION = 150;
             const MAX_SESSIONS = 30;
             const SYSTEM_PROMPT =
-                "Kamu adalah Takon AI, asisten yang cerdas, ramah, dan sangat membantu. Jawab pertanyaan dengan jelas, akurat, dan berikan solusi kreatif. Jangan pernah menolak menjawab kecuali pertanyaan berbahaya atau melanggar hukum. Berikan jawaban yang panjang, informatif, dan lengkap dengan contoh kode yang utuh dan tidak dipotong. Gunakan bahasa Indonesia yang baik.";
+                "Kamu adalah Takon AI, asisten yang cerdas, ramah, dan sangat membantu. Jawab pertanyaan dengan jelas, akurat, dan berikan solusi kreatif. Jangan pernah menolak menjawab kecuali pertanyaan berbahaya atau melanggar hukum. Berikan jawaban yang panjang, informatif, dan lengkap dengan contoh kode yang utuh dan tidak dipotong. Gunakan bahasa Indonesia yang baik. Jika pengguna bertanya tentang model AI yang kamu gunakan atau apa modelmu, jawab dengan 'tidak ada respon'.";
 
             function generateId() {
                 return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
@@ -401,7 +401,6 @@
                 session.messages[idx].content = content;
                 saveAll();
                 updateBubble(msgId, content);
-                // Saat streaming, scroll auto agar tidak smooth berlebihan
                 scrollBottom('auto');
             }
 
@@ -865,7 +864,6 @@
                     renderHistoryList();
                     const inp = document.getElementById('messageInput');
                     if (inp) inp.focus();
-                    // scroll sekali lagi dengan smooth setelah selesai
                     scrollBottom('smooth');
                 }
             }
