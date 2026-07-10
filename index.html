@@ -273,8 +273,8 @@
         (function() {
             'use strict';
 
-            // ⚠️ MODEL DEFAULT — UBAH SESUAI MODEL MULTIMODAL YANG KAMU PUNYA
-            const DEFAULT_MODEL = 'openai/gpt-4o'; // ganti dengan model vision yang tersedia
+            // ⚠️ PASTIKAN MODEL INI TERSEDIA DI BACKEND KAMU
+            const DEFAULT_MODEL = 'openai/gpt-4o'; // ganti sesuai model multimodal yang kamu punya
 
             const LS_SESSIONS = 'takon-ai-sessions';
             const LS_CURRENT = 'takon-ai-current';
@@ -296,13 +296,13 @@
                 pendingImages: [],
                 searchMatches: [],
                 searchIdx: 0,
-                model: DEFAULT_MODEL // <-- model aktif
+                model: DEFAULT_MODEL
             };
 
-            // Daftar model yang mendukung multimodal (vision)
             const VISION_MODELS = ['gpt-4o', 'gpt-4-vision', 'gpt-4-turbo', 'gemini', 'claude-3'];
             const isVisionModel = () => VISION_MODELS.some(m => state.model.toLowerCase().includes(m));
 
+            // ==================== STORAGE ====================
             function loadState() {
                 try { const raw = localStorage.getItem(LS_SESSIONS); if(raw) state.sessions = JSON.parse(raw); } catch(_){}
                 if(!Array.isArray(state.sessions)) state.sessions = [];
@@ -320,9 +320,7 @@
                 if(state.sessions.length>MAX_SESSIONS) state.sessions = state.sessions.slice(0,MAX_SESSIONS);
                 saveAll();
             }
-
             function saveAll() { try{ localStorage.setItem(LS_SESSIONS, JSON.stringify(state.sessions)); localStorage.setItem(LS_CURRENT, state.currentId||''); }catch(_){} }
-
             function getSession() { return state.sessions.find(s=>s.id===state.currentId) || null; }
             function ensureSession() {
                 let s = getSession();
@@ -330,6 +328,7 @@
                 return s;
             }
 
+            // ==================== MESSAGES ====================
             function addMsg(role, content, images=[]) {
                 const session = ensureSession();
                 const msg = { id: genId(), role, content: content || '', images: images || [], timestamp: Date.now() };
@@ -343,7 +342,6 @@
                 renderHistoryList();
                 return msg;
             }
-
             function updateMsgContent(msgId, content) {
                 const session = getSession(); if(!session) return;
                 const msg = session.messages.find(m=>m.id===msgId); if(!msg) return;
@@ -352,6 +350,7 @@
                 if(!isUserScrolling()) scrollBottom('auto');
             }
 
+            // ==================== RENDER ====================
             function renderMsg(msg) {
                 const container = document.getElementById('messagesContainer'); if(!container) return;
                 let el = container.querySelector(`.message[data-id="${msg.id}"]`);
@@ -377,7 +376,6 @@
                     actionsRow.appendChild(regenBtn);
                 }
             }
-
             function formatMessageContent(msg) {
                 let html = '';
                 if(msg.images && msg.images.length) {
@@ -386,37 +384,32 @@
                 html += renderMarkdown(msg.content);
                 return html;
             }
-
             function updateBubble(msgId, content) {
                 const container = document.getElementById('messagesContainer'); if(!container) return;
                 const el = container.querySelector(`.message[data-id="${msgId}"]`); if(!el) return;
                 const msg = getSession()?.messages.find(m=>m.id===msgId);
                 if(msg) el.querySelector('.bubble').innerHTML = formatMessageContent(msg);
             }
-
             function renderAllMessages() {
                 const container = document.getElementById('messagesContainer'); if(!container) return;
                 container.querySelectorAll('.message').forEach(e=>e.remove());
                 const session = getSession(); if(session) session.messages.forEach(m=>renderMsg(m));
                 updateWelcome(); scrollBottom('smooth');
             }
-
             function updateWelcome() {
                 const welcome = document.getElementById('welcomeScreen');
                 const session = getSession();
                 if(welcome) welcome.style.display = (!session || session.messages.length===0) ? 'flex' : 'none';
             }
-
             function scrollBottom(behavior='auto') {
                 const container = document.getElementById('messagesContainer'); if(container) container.scrollTo({top:container.scrollHeight, behavior});
             }
-
             function isUserScrolling() {
                 const container = document.getElementById('messagesContainer');
                 return container && (container.scrollHeight - container.scrollTop - container.clientHeight > 60);
             }
 
-            // ========== MARKDOWN RENDERING ==========
+            // ==================== MARKDOWN ====================
             function renderMarkdown(text) {
                 if(!text) return '';
                 const lines = text.split('\n');
@@ -452,7 +445,7 @@
             }
             function escapeHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-            // ========== TOAST ==========
+            // ==================== TOAST ====================
             function showToast(msg) {
                 const container = document.getElementById('toastContainer');
                 const toast = document.createElement('div'); toast.className='toast'; toast.textContent=msg;
@@ -460,7 +453,7 @@
                 setTimeout(()=>toast.remove(), 3000);
             }
 
-            // ========== MODAL KONFIRMASI ==========
+            // ==================== MODAL ====================
             function showConfirm(title, message) {
                 return new Promise(resolve => {
                     document.getElementById('confirmTitle').textContent = title;
@@ -474,7 +467,7 @@
                 });
             }
 
-            // ========== DRAWER & HISTORY ==========
+            // ==================== DRAWER ====================
             function renderHistoryList() {
                 const list = document.getElementById('historyList'); if(!list) return; list.innerHTML='';
                 state.sessions.forEach(session => {
@@ -488,12 +481,7 @@
                     list.appendChild(item);
                 });
             }
-            function switchSession(id) {
-                if(id!==state.currentId) {
-                    state.currentId=id; saveAll(); renderAllMessages(); updateWelcome(); renderHistoryList();
-                    loadSessionPrompt();
-                }
-            }
+            function switchSession(id) { if(id!==state.currentId) { state.currentId=id; saveAll(); renderAllMessages(); updateWelcome(); renderHistoryList(); loadSessionPrompt(); } }
             function deleteSession(id) {
                 state.sessions = state.sessions.filter(s=>s.id!==id);
                 if(state.currentId===id) state.currentId = state.sessions[0]?.id || null;
@@ -504,13 +492,12 @@
                 const ns = { id:genId(), title:'', messages:[], systemPrompt:SYSTEM_PROMPT_FULL };
                 if(state.sessions.length>=MAX_SESSIONS) state.sessions.shift();
                 state.sessions.unshift(ns); state.currentId=ns.id; saveAll();
-                renderAllMessages(); updateWelcome(); renderHistoryList(); closeDrawer();
-                loadSessionPrompt();
+                renderAllMessages(); updateWelcome(); renderHistoryList(); closeDrawer(); loadSessionPrompt();
             }
             function openDrawer() { document.getElementById('drawer').classList.add('open'); document.getElementById('drawerOverlay').classList.add('open'); renderHistoryList(); loadSessionPrompt(); }
             function closeDrawer() { document.getElementById('drawer').classList.remove('open'); document.getElementById('drawerOverlay').classList.remove('open'); }
 
-            // ========== EXPORT ==========
+            // ==================== EXPORT ====================
             function exportChat() {
                 const session = getSession(); if(!session || session.messages.length===0) { showToast('Tidak ada percakapan'); return; }
                 let md = `# ${session.title || 'Takon AI Chat'}\n\n`;
@@ -520,7 +507,7 @@
                 showToast('Chat diexport');
             }
 
-            // ========== SYSTEM PROMPT SESSION ==========
+            // ==================== SYSTEM PROMPT ====================
             function loadSessionPrompt() {
                 const session = getSession(); const textarea = document.getElementById('sessionPromptInput');
                 if(textarea) textarea.value = session?.systemPrompt || SYSTEM_PROMPT_FULL;
@@ -531,7 +518,7 @@
                 saveAll(); showToast('System prompt disimpan');
             }
 
-            // ========== EDIT & REGENERATE ==========
+            // ==================== EDIT & REGENERATE ====================
             function editUserMessage(msgId) {
                 const session = getSession(); if(!session) return;
                 const msg = session.messages.find(m=>m.id===msgId); if(!msg || msg.role!=='user') return;
@@ -557,7 +544,6 @@
                 };
                 cancelBtn.onclick = ()=>{ bubble.innerHTML = formatMessageContent(msg); };
             }
-
             function regenerateResponse(aiMsgId) {
                 const session = getSession(); if(!session) return;
                 const aiIdx = session.messages.findIndex(m=>m.id===aiMsgId);
@@ -572,7 +558,7 @@
                 send();
             }
 
-            // ========== IMAGE HANDLING ==========
+            // ==================== IMAGE HANDLING ====================
             function attachImage(file) {
                 if(!file || !file.type.startsWith('image/')) return;
                 const reader = new FileReader();
@@ -585,7 +571,7 @@
                 container.querySelectorAll('.remove-img').forEach(btn=>btn.onclick=(e)=>{ const idx=parseInt(btn.dataset.idx); state.pendingImages.splice(idx,1); renderImagePreviews(); });
             }
 
-            // ========== SEND MESSAGE (DENGAN DUKUNGAN MULTIMODAL) ==========
+            // ==================== SEND MESSAGE ====================
             async function send() {
                 const input = document.getElementById('messageInput'); if(!input) return;
                 let text = input.value.trim();
@@ -614,23 +600,29 @@
                     showToast('⚠️ Model saat ini tidak mendukung gambar. Gambar diabaikan.');
                 }
 
+                // Bangun payload dengan format yang BENAR
                 const apiMessages = [
                     { role:'system', content: session.systemPrompt || SYSTEM_PROMPT_FULL },
                     ...history.map(m=>{
                         if (m.role === 'user' && m.images && m.images.length && supportsImages) {
+                            // Format multimodal
                             const contentParts = [{ type: 'text', text: m.content }];
                             m.images.forEach(src => contentParts.push({ type: 'image_url', image_url: { url: src } }));
                             return { role: 'user', content: contentParts };
                         } else {
+                            // Teks biasa
                             return { role: m.role==='ai'?'assistant':'user', content: m.content };
                         }
                     })
                 ];
 
+                console.log('📤 Payload yang dikirim:', JSON.stringify({ messages: apiMessages, model: state.model }, null, 2));
+
                 try {
                     state.abortController = new AbortController();
                     const response = await fetch('/api/chat', {
-                        method:'POST', headers:{'Content-Type':'application/json'},
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
                         body: JSON.stringify({
                             messages: apiMessages,
                             model: state.model,
@@ -640,29 +632,51 @@
                         }),
                         signal: state.abortController.signal
                     });
+
+                    console.log('📥 Status respons:', response.status);
+
                     if(!response.ok) {
-                        if(response.status===429) {
-                            const retryAfter = parseInt(response.headers.get('Retry-After')||'30');
-                            handleRateLimit(aiMsgId, retryAfter); return;
-                        }
-                        throw new Error('HTTP '+response.status);
+                        const errorText = await response.text();
+                        console.error('❌ Error dari API:', errorText);
+                        throw new Error(`HTTP ${response.status}: ${errorText}`);
                     }
-                    const reader = response.body.getReader(); const decoder = new TextDecoder(); let full='';
+
+                    // Baca streaming
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let full = '';
                     while(true) {
-                        const {done, value} = await reader.read(); if(done) break;
+                        const {done, value} = await reader.read();
+                        if(done) break;
                         const chunk = decoder.decode(value,{stream:true});
                         const lines = chunk.split('\n');
                         for(const line of lines) {
                             if(!line.startsWith('data: ')) continue;
-                            const data = line.slice(6).trim(); if(data==='[DONE]') continue;
-                            try { const parsed=JSON.parse(data); const delta=parsed.choices?.[0]?.delta?.content; if(delta) { full+=delta; updateMsgContent(aiMsgId, full); } } catch(_){}
+                            const data = line.slice(6).trim();
+                            if(data==='[DONE]') continue;
+                            try {
+                                const parsed = JSON.parse(data);
+                                const delta = parsed.choices?.[0]?.delta?.content;
+                                if(delta) {
+                                    full += delta;
+                                    updateMsgContent(aiMsgId, full);
+                                }
+                            } catch(e) {
+                                console.warn('⚠️ Gagal parse chunk:', data);
+                            }
                         }
                     }
+                    console.log('✅ Selesai streaming, panjang respons:', full.length);
                     updateMsgContent(aiMsgId, full||'(tidak ada respons)');
                     if(!session.title) generateTitle(session);
                 } catch(err) {
-                    if(err.name==='AbortError') updateMsgContent(aiMsgId, '⏹️ Dibatalkan.');
-                    else showError(aiMsgId, err.message);
+                    console.error('❌ Error saat fetch:', err);
+                    if(err.name==='AbortError') {
+                        updateMsgContent(aiMsgId, '⏹️ Dibatalkan.');
+                    } else {
+                        updateMsgContent(aiMsgId, '');
+                        showError(aiMsgId, err.message);
+                    }
                 } finally {
                     state.isStreaming=false; state.abortController=null; updateSendBtn();
                     saveAll(); updateWelcome(); renderHistoryList();
@@ -676,7 +690,7 @@
                     const el = document.querySelector(`.message[data-id="${msgId}"] .bubble`);
                     if(el) el.innerHTML = `<div class="error-banner"><span class="error-text">⏳ Terlalu banyak permintaan. Coba lagi dalam ${remaining} detik.</span><button class="retry-btn" disabled>↻ Tunggu...</button></div>`;
                     if(remaining>0) { remaining--; setTimeout(tick,1000); } else {
-                        if(el) el.innerHTML = `<div class="error-banner"><span class="error-text">Silakan coba lagi.</span><button class="retry-btn" onclick="document.querySelector('[data-msgid=\\'${msgId}\\']').click()">↻ Coba Lagi</button></div>`;
+                        if(el) el.innerHTML = `<div class="error-banner"><span class="error-text">Silakan coba lagi.</span><button class="retry-btn" data-msgid="${msgId}">↻ Coba Lagi</button></div>`;
                     }
                 };
                 tick();
@@ -699,7 +713,7 @@
                 } catch(_){}
             }
 
-            // ========== SEARCH ==========
+            // ==================== SEARCH ====================
             function toggleSearch() { document.getElementById('searchBar').classList.toggle('active'); if(document.getElementById('searchBar').classList.contains('active')) document.getElementById('searchInput').focus(); else clearSearch(); }
             function clearSearch() { document.getElementById('searchBar').classList.remove('active'); removeHighlights(); document.getElementById('searchInput').value=''; document.getElementById('searchCount').textContent=''; }
             function performSearch() {
@@ -753,7 +767,7 @@
             }
             function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
 
-            // ========== UI HELPERS ==========
+            // ==================== UI HELPERS ====================
             function autoResize() { const inp=document.getElementById('messageInput'); inp.style.height='auto'; inp.style.height=Math.min(inp.scrollHeight,100)+'px'; }
             function updateSendBtn() {
                 const btn=document.getElementById('sendBtn'), inp=document.getElementById('messageInput');
@@ -778,7 +792,7 @@
                 document.getElementById('manifest-link').href = URL.createObjectURL(blob);
             }
 
-            // ========== EVENT LISTENERS ==========
+            // ==================== EVENTS ====================
             function initEvents() {
                 document.getElementById('sendBtn').onclick = ()=> state.isStreaming? stopStream() : send();
                 document.getElementById('messageInput').onkeydown = e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); state.isStreaming? stopStream() : send(); } };
