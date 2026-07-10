@@ -244,7 +244,7 @@
                 <div class="welcome" id="welcomeScreen">
                     <img src="https://i.ibb.co.com/cSLLXwZx/c26665a8-fdc8-473c-a332-2aaca368f048.png" alt="Takon AI" class="welcome-icon">
                     <div class="welcome-title">Halo, aku Takon AI</div>
-                    <div class="welcome-desc">Tanya apa saja dalam bahasa Indonesia. Aku siap bantu jawab, kasih ide, atau temani ngobrol.</div>
+                    <div class="welcome-desc">Tanya apa saja dalam bahasa Indonesia, bahkan unggah gambar. Aku siap bantu jawab, kasih ide, atau temani ngobrol.</div>
                     <div class="chips">
                         <button class="chip" data-prompt="Jelaskan budaya Betawi secara singkat">Budaya Betawi</button>
                         <button class="chip" data-prompt="Buat puisi pendek tentang hujan">Puisi Hujan</button>
@@ -273,6 +273,9 @@
         (function() {
             'use strict';
 
+            // ⚠️ MODEL DEFAULT — UBAH SESUAI MODEL MULTIMODAL YANG KAMU PUNYA
+            const DEFAULT_MODEL = 'openai/gpt-4o'; // ganti dengan model vision yang tersedia
+
             const LS_SESSIONS = 'takon-ai-sessions';
             const LS_CURRENT = 'takon-ai-current';
             const LS_THEME = 'takon-ai-thm';
@@ -283,17 +286,22 @@
             function genId() { return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8); }
 
             const state = {
-                sessions: [], currentId: null, theme: 'dark',
-                isStreaming: false, abortController: null,
-                retryMsgId: null, retryContent: null,
-                pendingImages: [], // array of data URLs
-                searchMatches: [], searchIdx: 0
+                sessions: [],
+                currentId: null,
+                theme: 'dark',
+                isStreaming: false,
+                abortController: null,
+                retryMsgId: null,
+                retryContent: null,
+                pendingImages: [],
+                searchMatches: [],
+                searchIdx: 0,
+                model: DEFAULT_MODEL // <-- model aktif
             };
 
-            // Daftar model yang mendukung multimodal
-            const VISION_MODELS = ['gpt-4o', 'gpt-4-vision', 'gpt-4-turbo', 'gpt-4', 'gemini', 'claude-3', 'claude-3.5'];
-            const currentModel = 'openai/gpt-oss-120b'; // Ubah sesuai model yang dipakai
-            const isVisionModel = () => VISION_MODELS.some(m => currentModel.toLowerCase().includes(m));
+            // Daftar model yang mendukung multimodal (vision)
+            const VISION_MODELS = ['gpt-4o', 'gpt-4-vision', 'gpt-4-turbo', 'gemini', 'claude-3'];
+            const isVisionModel = () => VISION_MODELS.some(m => state.model.toLowerCase().includes(m));
 
             function loadState() {
                 try { const raw = localStorage.getItem(LS_SESSIONS); if(raw) state.sessions = JSON.parse(raw); } catch(_){}
@@ -445,7 +453,7 @@
             function escapeHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
             // ========== TOAST ==========
-            function showToast(msg, type='info') {
+            function showToast(msg) {
                 const container = document.getElementById('toastContainer');
                 const toast = document.createElement('div'); toast.className='toast'; toast.textContent=msg;
                 container.appendChild(toast);
@@ -483,7 +491,7 @@
             function switchSession(id) {
                 if(id!==state.currentId) {
                     state.currentId=id; saveAll(); renderAllMessages(); updateWelcome(); renderHistoryList();
-                    loadSessionPrompt(); // Muat system prompt sesi yang baru
+                    loadSessionPrompt();
                 }
             }
             function deleteSession(id) {
@@ -545,7 +553,7 @@
                     saveAll();
                     bubble.innerHTML = formatMessageContent(msg);
                     renderAllMessages();
-                    send(); // resend with new prompt
+                    send();
                 };
                 cancelBtn.onclick = ()=>{ bubble.innerHTML = formatMessageContent(msg); };
             }
@@ -577,7 +585,7 @@
                 container.querySelectorAll('.remove-img').forEach(btn=>btn.onclick=(e)=>{ const idx=parseInt(btn.dataset.idx); state.pendingImages.splice(idx,1); renderImagePreviews(); });
             }
 
-            // ========== SEND MESSAGE (dengan penanganan multimodal) ==========
+            // ========== SEND MESSAGE (DENGAN DUKUNGAN MULTIMODAL) ==========
             async function send() {
                 const input = document.getElementById('messageInput'); if(!input) return;
                 let text = input.value.trim();
@@ -590,7 +598,6 @@
                 if(!text && state.pendingImages.length===0) return;
 
                 const session = ensureSession();
-                // Simpan gambar di pesan pengguna untuk ditampilkan di UI
                 const imagesToStore = [...state.pendingImages];
                 addMsg('user', text, imagesToStore);
                 input.value = ''; state.pendingImages = []; renderImagePreviews(); autoResize(); updateSendBtn();
@@ -603,21 +610,18 @@
                 const history = session.messages.filter(m=>m.id!==aiMsgId).slice(-20);
                 const supportsImages = isVisionModel();
 
-                // Jika ada gambar tetapi model tidak mendukung multimodal, beri tahu pengguna
                 if (imagesToStore.length > 0 && !supportsImages) {
-                    showToast('Model saat ini tidak mendukung gambar. Gambar akan diabaikan.');
+                    showToast('⚠️ Model saat ini tidak mendukung gambar. Gambar diabaikan.');
                 }
 
                 const apiMessages = [
                     { role:'system', content: session.systemPrompt || SYSTEM_PROMPT_FULL },
                     ...history.map(m=>{
-                        // Hanya format multimodal jika model mendukung dan pesan memiliki gambar
                         if (m.role === 'user' && m.images && m.images.length && supportsImages) {
-                            const contentParts = [{type:'text', text: m.content}];
-                            m.images.forEach(src => contentParts.push({type:'image_url', image_url:{url:src}}));
+                            const contentParts = [{ type: 'text', text: m.content }];
+                            m.images.forEach(src => contentParts.push({ type: 'image_url', image_url: { url: src } }));
                             return { role: 'user', content: contentParts };
                         } else {
-                            // Kirim hanya teks, abaikan gambar
                             return { role: m.role==='ai'?'assistant':'user', content: m.content };
                         }
                     })
@@ -627,7 +631,13 @@
                     state.abortController = new AbortController();
                     const response = await fetch('/api/chat', {
                         method:'POST', headers:{'Content-Type':'application/json'},
-                        body: JSON.stringify({ messages: apiMessages, model: currentModel, stream:true, max_tokens:4096, temperature:0.7 }),
+                        body: JSON.stringify({
+                            messages: apiMessages,
+                            model: state.model,
+                            stream: true,
+                            max_tokens: 4096,
+                            temperature: 0.7
+                        }),
                         signal: state.abortController.signal
                     });
                     if(!response.ok) {
@@ -681,7 +691,7 @@
                 try {
                     const resp = await fetch('/api/chat', {
                         method:'POST', headers:{'Content-Type':'application/json'},
-                        body: JSON.stringify({ messages:[{role:'system',content:'Buat judul singkat (maks 5 kata) dari percakapan berikut.'},{role:'user',content:session.messages[0]?.content||''}], model: currentModel, max_tokens:20, temperature:0.5 })
+                        body: JSON.stringify({ messages:[{role:'system',content:'Buat judul singkat (maks 5 kata) dari percakapan berikut.'},{role:'user',content:session.messages[0]?.content||''}], model: state.model, max_tokens:20, temperature:0.5 })
                     });
                     const data = await resp.json();
                     const title = data.choices?.[0]?.message?.content?.trim();
@@ -802,7 +812,6 @@
                 });
                 document.getElementById('jumpToBottom').onclick = ()=> scrollBottom('smooth');
 
-                // Swipe to close drawer
                 let touchStartX=0;
                 document.getElementById('drawerOverlay').addEventListener('touchstart', e=>{ touchStartX=e.touches[0].clientX; });
                 document.getElementById('drawerOverlay').addEventListener('touchend', e=>{ if(touchStartX - e.changedTouches[0].clientX > 80) closeDrawer(); });
@@ -823,7 +832,6 @@
                     }
                 });
 
-                // Drag & drop images
                 document.addEventListener('dragover', e=>e.preventDefault());
                 document.addEventListener('drop', e=>{ e.preventDefault(); const files = e.dataTransfer.files; for(const f of files) if(f.type.startsWith('image/')) attachImage(f); });
             }
