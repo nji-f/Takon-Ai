@@ -19,14 +19,19 @@
             --capsule-radius: 22px;
             --capsule-tip: 6px;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
             font-family: var(--font);
             background: var(--bg);
             color: var(--text);
             display: flex;
             flex-direction: column;
-            height: 100vh; height: 100dvh;
+            height: 100vh;
+            height: 100dvh;
             overflow: hidden;
             letter-spacing: -0.01em;
             line-height: 1.5;
@@ -34,212 +39,815 @@
         }
         body::before {
             content: '';
-            position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.04;
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.04;
             background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
-            background-repeat: repeat; background-size: 180px 180px;
+            background-repeat: repeat;
+            background-size: 180px 180px;
         }
-        .bg-blob { position: fixed; pointer-events: none; z-index: 0; }
-        .blob1 { top: -120px; right: -100px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(196,167,255,0.06) 0%, transparent 70%); border-radius: 40% 60% 30% 70% / 50% 30% 70% 50%; animation: blobMove 20s infinite alternate; }
-        .blob2 { bottom: -140px; left: -80px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(78,224,167,0.04) 0%, transparent 70%); border-radius: 60% 40% 50% 50% / 40% 60% 30% 70%; animation: blobMove 25s infinite alternate-reverse; }
+        .bg-blob {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .blob1 {
+            top: -120px;
+            right: -100px;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(196, 167, 255, 0.06) 0%, transparent 70%);
+            border-radius: 40% 60% 30% 70% / 50% 30% 70% 50%;
+            animation: blobMove 20s infinite alternate;
+        }
+        .blob2 {
+            bottom: -140px;
+            left: -80px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(78, 224, 167, 0.04) 0%, transparent 70%);
+            border-radius: 60% 40% 50% 50% / 40% 60% 30% 70%;
+            animation: blobMove 25s infinite alternate-reverse;
+        }
         @keyframes blobMove {
-            0% { transform: translate(0,0) rotate(0deg); }
-            33% { transform: translate(40px,-30px) rotate(5deg); }
-            66% { transform: translate(-30px,20px) rotate(-3deg); }
-            100% { transform: translate(20px,35px) rotate(2deg); }
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            33% {
+                transform: translate(40px, -30px) rotate(5deg);
+            }
+            66% {
+                transform: translate(-30px, 20px) rotate(-3deg);
+            }
+            100% {
+                transform: translate(20px, 35px) rotate(2deg);
+            }
         }
         @keyframes dotBounce {
-            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-            30% { transform: translateY(-7px); opacity: 1; }
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            30% {
+                transform: translateY(-7px);
+                opacity: 1;
+            }
         }
         .topbar {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 22px; flex-shrink: 0; position: relative; z-index: 20;
-            background: rgba(14,14,22,0.75); backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 22px;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 20;
+            background: rgba(14, 14, 22, 0.75);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border);
         }
-        .topbar-left { display: flex; align-items: center; gap: 12px; }
-        .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-weight: 550; font-size: 1.05rem; }
-        .brand-logo { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); box-shadow: 0 0 15px rgba(196,167,255,0.3); }
-        .topbar-actions { display: flex; align-items: center; gap: 8px; }
-        .btn-icon { background: transparent; border: 1px solid var(--border); width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; color: var(--text-soft); transition: 0.2s; }
-        .btn-icon:hover { background: rgba(255,255,255,0.04); color: var(--text); border-color: rgba(255,255,255,0.12); }
-        .btn-danger { background: rgba(255,100,100,0.1); border: 1px solid rgba(255,100,100,0.2); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.76rem; color: #f4a0a0; font-weight: 500; }
-        .btn-danger:hover { background: rgba(255,100,100,0.18); }
-        .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; width: 100%; max-width: 900px; margin: 0 auto; padding: 0 20px 14px; position: relative; z-index: 1; }
-        .page { display: flex; flex: 1; flex-direction: column; overflow-y: auto; animation: fadeUp 0.35s ease; }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 550;
+            font-size: 1.05rem;
+        }
+        .brand-logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 15px rgba(196, 167, 255, 0.3);
+        }
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-icon {
+            background: transparent;
+            border: 1px solid var(--border);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-soft);
+            transition: 0.2s;
+        }
+        .btn-icon:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+        .btn-danger {
+            background: rgba(255, 100, 100, 0.1);
+            border: 1px solid rgba(255, 100, 100, 0.2);
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.76rem;
+            color: #f4a0a0;
+            font-weight: 500;
+        }
+        .btn-danger:hover {
+            background: rgba(255, 100, 100, 0.18);
+        }
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px 14px;
+            position: relative;
+            z-index: 1;
+        }
+        .page {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            overflow-y: auto;
+            animation: fadeUp 0.35s ease;
+        }
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
         .messages-container {
-            flex:1; overflow-y:auto; padding:12px 4px 16px; display:flex; flex-direction:column; gap:10px;
-            overflow-anchor: auto;
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 4px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
             scroll-behavior: smooth;
-            will-change: transform;
-            contain: layout style;
         }
-        .welcome { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; }
-        .welcome-icon { width: 80px; height: 80px; border-radius: 24px; object-fit: cover; box-shadow: 0 10px 30px rgba(196,167,255,0.3); margin-bottom: 10px; }
-        .welcome-title { font-size:1.4rem; font-weight:580; }
-        .welcome-desc { color:var(--text-soft); max-width:340px; font-size:0.84rem; }
-        .chips { display:flex; flex-wrap:wrap; gap:7px; margin-top:8px; justify-content:center; }
-        .chip { background:var(--surface); border:1px solid var(--border); padding:7px 15px; border-radius:20px; font-size:0.78rem; cursor:pointer; color:var(--text-soft); transition:0.2s; font-family:var(--font); }
-        .chip:hover { background:var(--accent-dim); color:var(--accent); border-color:rgba(196,167,255,0.35); }
-        .message { display:flex; gap:8px; max-width:85%; animation:capsuleIn 0.35s cubic-bezier(0.2,0,0,1); align-items:flex-end; }
-        @keyframes capsuleIn { from{opacity:0;transform:translateY(14px) scale(0.96);} to{opacity:1;transform:translateY(0) scale(1);} }
-        .message.user { align-self:flex-end; flex-direction:row-reverse; }
-        .message.ai { align-self:flex-start; }
-        .avatar { width:32px; height:32px; border-radius:16px; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:0.8rem; flex-shrink:0; overflow:hidden; }
-        .message.user .avatar { background:var(--accent-dim); border-color:rgba(196,167,255,0.3); }
-        .avatar img { width:100%; height:100%; object-fit:cover; }
-        .bubble { padding:10px 16px; font-size:0.86rem; line-height:1.5; word-break:break-word; border-radius:var(--capsule-radius) var(--capsule-radius) var(--capsule-radius) var(--capsule-tip); background:var(--surface); border:1px solid var(--border); color:var(--text); box-shadow:0 2px 8px rgba(0,0,0,0.1); max-width:100%; contain: content; }
-        .message.user .bubble { background:linear-gradient(135deg, #c4a7ff, #d5b8ff); color:#0e0e16; border:none; border-radius:var(--capsule-radius) var(--capsule-radius) var(--capsule-tip) var(--capsule-radius); box-shadow:0 6px 18px rgba(196,167,255,0.3); }
-        .message.ai .bubble { border-radius:var(--capsule-radius) var(--capsule-radius) var(--capsule-tip) var(--capsule-radius); }
-        .time { font-size:0.6rem; color:var(--text-muted); margin-top:4px; padding:0 4px; text-align:right; }
-        .message.user .time { text-align:left; }
-        .bubble pre { background:rgba(0,0,0,0.35) !important; padding:12px !important; border-radius:8px !important; overflow-x:auto !important; margin:8px 0 !important; border:1px solid var(--border) !important; position:relative !important; white-space:pre-wrap; word-break:break-word; }
-        .bubble pre code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.78rem; white-space: pre-wrap; word-break: break-word; color:var(--text); }
+        .welcome {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 10px;
+        }
+        .welcome-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 24px;
+            object-fit: cover;
+            box-shadow: 0 10px 30px rgba(196, 167, 255, 0.3);
+            margin-bottom: 10px;
+        }
+        .welcome-title {
+            font-size: 1.4rem;
+            font-weight: 580;
+        }
+        .welcome-desc {
+            color: var(--text-soft);
+            max-width: 340px;
+            font-size: 0.84rem;
+        }
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 8px;
+            justify-content: center;
+        }
+        .chip {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 7px 15px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            color: var(--text-soft);
+            transition: 0.2s;
+            font-family: var(--font);
+        }
+        .chip:hover {
+            background: var(--accent-dim);
+            color: var(--accent);
+            border-color: rgba(196, 167, 255, 0.35);
+        }
+        .message {
+            display: flex;
+            gap: 8px;
+            max-width: 85%;
+            animation: capsuleIn 0.35s cubic-bezier(0.2, 0, 0, 1);
+            align-items: flex-end;
+        }
+        @keyframes capsuleIn {
+            from {
+                opacity: 0;
+                transform: translateY(14px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        .message.ai {
+            align-self: flex-start;
+        }
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .message.user .avatar {
+            background: var(--accent-dim);
+            border-color: rgba(196, 167, 255, 0.3);
+        }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .bubble {
+            padding: 10px 16px;
+            font-size: 0.86rem;
+            line-height: 1.5;
+            word-break: break-word;
+            border-radius: var(--capsule-radius) var(--capsule-radius) var(--capsule-radius) var(--capsule-tip);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            max-width: 100%;
+        }
+        .message.user .bubble {
+            background: linear-gradient(135deg, #c4a7ff, #d5b8ff);
+            color: #0e0e16;
+            border: none;
+            border-radius: var(--capsule-radius) var(--capsule-radius) var(--capsule-tip) var(--capsule-radius);
+            box-shadow: 0 6px 18px rgba(196, 167, 255, 0.3);
+        }
+        .message.ai .bubble {
+            border-radius: var(--capsule-radius) var(--capsule-radius) var(--capsule-tip) var(--capsule-radius);
+        }
+        .time {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            padding: 0 4px;
+            text-align: right;
+        }
+        .message.user .time {
+            text-align: left;
+        }
+        /* Image attachment preview in bubble */
+        .bubble .attached-image {
+            max-width: 220px;
+            max-height: 220px;
+            border-radius: 12px;
+            display: block;
+            margin-bottom: 8px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.2s;
+        }
+        .bubble .attached-image:hover {
+            transform: scale(1.02);
+        }
+        .message.user .bubble .attached-image {
+            border-color: rgba(0, 0, 0, 0.15);
+        }
+        /* Image preview in input area */
+        .image-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 6px 8px 6px 0;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .image-preview-item {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid var(--accent);
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(196, 167, 255, 0.25);
+        }
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .image-preview-item .remove-img {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #e05555;
+            color: white;
+            border: none;
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        .bubble pre {
+            background: rgba(0, 0, 0, 0.35) !important;
+            padding: 12px !important;
+            border-radius: 8px !important;
+            overflow-x: auto !important;
+            margin: 8px 0 !important;
+            border: 1px solid var(--border) !important;
+            position: relative !important;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .bubble pre code {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.78rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: var(--text);
+        }
         .copy-btn {
-            position: absolute; top: 6px; right: 10px;
-            font-size: 0.7rem; cursor: pointer;
+            position: absolute;
+            top: 6px;
+            right: 10px;
+            font-size: 0.7rem;
+            cursor: pointer;
             background: rgba(196, 167, 255, 0.25);
             border: 1px solid var(--accent);
-            padding: 4px 12px; border-radius: 16px;
+            padding: 4px 12px;
+            border-radius: 16px;
             color: var(--accent);
             backdrop-filter: blur(4px);
             transition: 0.2s;
             font-family: var(--font);
             font-weight: 600;
-            box-shadow: 0 2px 8px rgba(196,167,255,0.15);
+            box-shadow: 0 2px 8px rgba(196, 167, 255, 0.15);
         }
-        .copy-btn:hover { background: var(--accent); color: #0e0e16; border-color: var(--accent); }
-        .input-area { padding:8px 4px 4px; flex-shrink:0; }
-        .input-wrap { display:flex; align-items:flex-end; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:28px; padding:6px 8px 6px 18px; transition:0.2s; }
-        .input-wrap:focus-within { border-color:rgba(255,255,255,0.12); box-shadow:0 0 0 3px var(--accent-dim); }
-        .input-wrap textarea { flex:1; border:none; background:transparent; resize:none; font-family:var(--font); font-size:0.86rem; padding:8px 0; color:var(--text); outline:none; max-height:100px; min-height:42px; line-height:1.4; width:0; min-width:40px; }
-        .input-wrap textarea:disabled { opacity:0.5; cursor:not-allowed; }
-        .send-btn { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, #c4a7ff, #e0b0ff); color:#0e0e16; border:none; cursor:pointer; font-size:1.1rem; transition:0.2s; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-        .send-btn:hover:not(:disabled) { filter:brightness(1.1); }
-        .send-btn:disabled { opacity:0.3; cursor:not-allowed; }
-        .send-btn.stop { background:#e05555; }
-        .error-banner { background:rgba(255,80,80,0.12); border:1px solid rgba(255,80,80,0.25); border-radius:16px; padding:14px 18px; margin:4px 0; display:flex; flex-direction:column; gap:10px; align-items:flex-start; }
-        .error-banner .error-text { color:#f4a0a0; font-size:0.85rem; }
-        .retry-btn { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text-soft); padding:5px 16px; border-radius:20px; cursor:pointer; font-size:0.78rem; font-family:var(--font); transition:0.2s; }
-        .retry-btn:hover { background:var(--accent-dim); color:var(--accent); border-color:var(--accent); }
-
-        .drawer-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 25;
-            opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
-            backdrop-filter: blur(4px);
+        .copy-btn:hover {
+            background: var(--accent);
+            color: #0e0e16;
+            border-color: var(--accent);
         }
-        .drawer-overlay.open { opacity: 1; visibility: visible; }
-        .drawer {
-            position: fixed; top: 0; left: 0; width: 300px; height: 100%;
-            background: var(--surface); border-right: 1px solid var(--border);
-            z-index: 30; transform: translateX(-100%);
-            transition: transform 0.3s cubic-bezier(0.2,0,0,1);
-            display: flex; flex-direction: column; padding: 20px 16px; gap: 16px;
-            box-shadow: 8px 0 24px rgba(0,0,0,0.4); overflow-y: auto;
-        }
-        .drawer.open { transform: translateX(0); }
-        .drawer-header { display: flex; align-items: center; justify-content: space-between; }
-        .drawer-title { font-weight: 600; font-size: 1rem; color: var(--text); }
-        .drawer-close { background: transparent; border: 1px solid var(--border); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; color: var(--text-soft); font-size: 0.9rem; display: flex; align-items: center; justify-content: center; }
-        .drawer-close:hover { background: rgba(255,255,255,0.06); color: var(--text); }
-        .history-section { flex: 1; min-height: 0; display: flex; flex-direction: column; }
-        .history-section h4 { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.04em; flex-shrink: 0; }
-        .history-list { display: flex; flex-direction: column; gap: 6px; flex: 1; overflow-y: auto; min-height: 0; }
-        .history-item {
-            background: transparent; border: none; color: var(--text-soft);
-            padding: 8px 10px; border-radius: 8px; font-size: 0.82rem; cursor: pointer;
-            text-align: left; font-family: var(--font); display: flex; align-items: center; gap: 8px;
-            transition: 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            justify-content: space-between; width: 100%;
-        }
-        .history-item:hover { background: var(--accent-dim); color: var(--text); }
-        .history-item .prefix { color: var(--accent); font-size: 0.7rem; flex-shrink: 0; }
-        .history-item .delete-session {
-            background: none; border: none; color: var(--text-muted); cursor: pointer;
-            font-size: 0.9rem; padding: 2px 4px; border-radius: 4px; opacity: 0.6; transition: 0.2s;
+        .input-area {
+            padding: 8px 4px 4px;
             flex-shrink: 0;
         }
-        .history-item .delete-session:hover { opacity: 1; color: #f4a0a0; background: rgba(255,100,100,0.1); }
-        .history-item .session-title.placeholder { color: var(--text-muted); font-style: italic; opacity: 0.7; }
-        .history-empty { color: var(--text-muted); font-size: 0.78rem; text-align: center; padding: 10px; }
-        .new-chat-btn {
-            background: var(--accent-dim); border: 1px solid rgba(196,167,255,0.2);
-            color: var(--accent); padding: 8px 12px; border-radius: 8px; font-size: 0.82rem;
-            cursor: pointer; font-family: var(--font); width: 100%; text-align: left;
-            display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-shrink: 0;
+        .input-wrap {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 6px 8px 6px 14px;
+            transition: 0.2s;
+            flex-wrap: wrap;
         }
-        .new-chat-btn:hover { background: var(--accent); color: #0e0e16; }
+        .input-wrap:focus-within {
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
+        .input-wrap .textarea-wrapper {
+            flex: 1;
+            min-width: 120px;
+            display: flex;
+            align-items: flex-end;
+        }
+        .input-wrap textarea {
+            width: 100%;
+            border: none;
+            background: transparent;
+            resize: none;
+            font-family: var(--font);
+            font-size: 0.86rem;
+            padding: 8px 0;
+            color: var(--text);
+            outline: none;
+            max-height: 100px;
+            min-height: 42px;
+            line-height: 1.4;
+        }
+        .input-wrap textarea:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .input-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .attach-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-soft);
+            flex-shrink: 0;
+        }
+        .attach-btn:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text);
+        }
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #c4a7ff, #e0b0ff);
+            color: #0e0e16;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .send-btn:hover:not(:disabled) {
+            filter: brightness(1.1);
+        }
+        .send-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .send-btn.stop {
+            background: #e05555;
+        }
+        .error-banner {
+            background: rgba(255, 80, 80, 0.12);
+            border: 1px solid rgba(255, 80, 80, 0.25);
+            border-radius: 16px;
+            padding: 14px 18px;
+            margin: 4px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        .error-banner .error-text {
+            color: #f4a0a0;
+            font-size: 0.85rem;
+        }
+        .retry-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
+            color: var(--text-soft);
+            padding: 5px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-family: var(--font);
+            transition: 0.2s;
+        }
+        .retry-btn:hover {
+            background: var(--accent-dim);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
 
-        /* Fitur Lampiran Gambar */
-        .btn-attach {
-            background: transparent; border: none; color: var(--text-soft);
-            font-size: 1.2rem; cursor: pointer; padding: 0 4px;
-            display: flex; align-items: center; justify-content: center;
-            transition: 0.2s; flex-shrink: 0; margin-right: 4px;
+        .drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 25;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            backdrop-filter: blur(4px);
         }
-        .btn-attach:hover { color: var(--accent); }
-        .image-preview-card {
-            display: none; position: absolute; bottom: calc(100% + 12px); left: 24px;
-            background: rgba(14,14,22,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border); border-radius: 12px; padding: 8px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 10;
-            animation: fadeUp 0.2s ease;
+        .drawer-overlay.open {
+            opacity: 1;
+            visibility: visible;
         }
-        .image-preview-card img { max-height: 80px; border-radius: 6px; object-fit: cover; display: block; }
-        .image-preview-card .remove-img {
-            position: absolute; top: -8px; right: -8px; background: #e05555; color: #fff;
-            border: none; width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
-            font-size: 0.7rem; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 2px 8px rgba(224,85,85,0.4); font-weight: bold;
+        .drawer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 300px;
+            height: 100%;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            z-index: 30;
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 16px;
+            gap: 16px;
+            box-shadow: 8px 0 24px rgba(0, 0, 0, 0.4);
+            overflow-y: auto;
         }
-        .bubble img.chat-image { max-width: 100%; border-radius: 8px; margin-bottom: 8px; display: block; border: 1px solid var(--border); }
+        .drawer.open {
+            transform: translateX(0);
+        }
+        .drawer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .drawer-title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text);
+        }
+        .drawer-close {
+            background: transparent;
+            border: 1px solid var(--border);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--text-soft);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .drawer-close:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text);
+        }
+        .history-section {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .history-section h4 {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            flex-shrink: 0;
+        }
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+        .history-item {
+            background: transparent;
+            border: none;
+            color: var(--text-soft);
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            text-align: left;
+            font-family: var(--font);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            justify-content: space-between;
+            width: 100%;
+        }
+        .history-item:hover {
+            background: var(--accent-dim);
+            color: var(--text);
+        }
+        .history-item .prefix {
+            color: var(--accent);
+            font-size: 0.7rem;
+            flex-shrink: 0;
+        }
+        .history-item .delete-session {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 2px 4px;
+            border-radius: 4px;
+            opacity: 0.6;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+        .history-item .delete-session:hover {
+            opacity: 1;
+            color: #f4a0a0;
+            background: rgba(255, 100, 100, 0.1);
+        }
+        .history-item .session-title.placeholder {
+            color: var(--text-muted);
+            font-style: italic;
+            opacity: 0.7;
+        }
+        .history-empty {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            text-align: center;
+            padding: 10px;
+        }
+        .new-chat-btn {
+            background: var(--accent-dim);
+            border: 1px solid rgba(196, 167, 255, 0.2);
+            color: var(--accent);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            font-family: var(--font);
+            width: 100%;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+        .new-chat-btn:hover {
+            background: var(--accent);
+            color: #0e0e16;
+        }
 
         @media (max-width: 480px) {
-            .topbar { padding: 10px 14px; }
-            .brand { font-size: 0.9rem; gap: 8px; }
-            .brand-logo { width: 30px; height: 30px; }
-            .main { padding: 0 12px 10px; }
-            .message { max-width: 92%; }
-            .bubble { padding: 8px 14px; font-size: 0.82rem; }
-            .input-wrap { padding: 4px 6px 4px 14px; border-radius: 24px; }
-            .input-wrap textarea { font-size: 0.82rem; min-height: 36px; padding: 6px 0; }
-            .send-btn { width: 36px; height: 36px; font-size: 1rem; }
-            .btn-danger { font-size: 0.7rem; padding: 4px 10px; }
-            .btn-icon { width: 30px; height: 30px; font-size: 0.85rem; }
-            .chips .chip { font-size: 0.72rem; padding: 5px 12px; }
-            .drawer { width: 280px; max-width: 80vw; padding: 16px 12px; }
+            .topbar {
+                padding: 10px 14px;
+            }
+            .brand {
+                font-size: 0.9rem;
+                gap: 8px;
+            }
+            .brand-logo {
+                width: 30px;
+                height: 30px;
+            }
+            .main {
+                padding: 0 12px 10px;
+            }
+            .message {
+                max-width: 92%;
+            }
+            .bubble {
+                padding: 8px 14px;
+                font-size: 0.82rem;
+            }
+            .input-wrap {
+                padding: 4px 6px 4px 10px;
+                border-radius: 24px;
+            }
+            .input-wrap textarea {
+                font-size: 0.82rem;
+                min-height: 36px;
+                padding: 6px 0;
+            }
+            .send-btn,
+            .attach-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
+            .btn-danger {
+                font-size: 0.7rem;
+                padding: 4px 10px;
+            }
+            .btn-icon {
+                width: 30px;
+                height: 30px;
+                font-size: 0.85rem;
+            }
+            .chips .chip {
+                font-size: 0.72rem;
+                padding: 5px 12px;
+            }
+            .drawer {
+                width: 280px;
+                max-width: 80vw;
+                padding: 16px 12px;
+            }
+            .bubble .attached-image {
+                max-width: 160px;
+                max-height: 160px;
+            }
+            .image-preview-item {
+                width: 40px;
+                height: 40px;
+            }
         }
         @media (max-width: 360px) {
-            .topbar { padding: 8px 10px; }
-            .brand { font-size: 0.8rem; gap: 6px; }
-            .brand-logo { width: 26px; height: 26px; }
-            .main { padding: 0 8px 8px; }
-            .bubble { padding: 6px 12px; font-size: 0.78rem; }
-            .input-wrap { padding: 3px 4px 3px 10px; border-radius: 20px; }
-            .input-wrap textarea { font-size: 0.78rem; min-height: 32px; padding: 4px 0; }
-            .send-btn { width: 32px; height: 32px; font-size: 0.9rem; }
-            .btn-danger { font-size: 0.65rem; padding: 3px 8px; }
-            .btn-icon { width: 28px; height: 28px; font-size: 0.75rem; }
-            .welcome-title { font-size: 1.1rem; }
-            .welcome-icon { width: 60px; height: 60px; border-radius: 18px; }
-            .drawer { width: 240px; padding: 12px 10px; }
-        }
-        @media (max-width: 320px) {
-            .topbar { padding: 6px 8px; }
-            .brand { font-size: 0.7rem; gap: 4px; }
-            .brand-logo { width: 22px; height: 22px; border-width: 1.5px; }
-            .main { padding: 0 4px 6px; }
-            .bubble { padding: 5px 10px; font-size: 0.74rem; }
-            .input-wrap { padding: 2px 3px 2px 8px; border-radius: 18px; }
-            .input-wrap textarea { font-size: 0.74rem; min-height: 28px; padding: 3px 0; }
-            .send-btn { width: 28px; height: 28px; font-size: 0.75rem; }
-            .btn-danger { font-size: 0.6rem; padding: 2px 6px; }
-            .btn-icon { width: 24px; height: 24px; font-size: 0.7rem; }
-            .welcome-title { font-size: 0.95rem; }
-            .welcome-icon { width: 48px; height: 48px; border-radius: 14px; }
-            .welcome-desc { font-size: 0.74rem; }
-            .drawer { width: 200px; padding: 10px 8px; }
+            .topbar {
+                padding: 8px 10px;
+            }
+            .brand {
+                font-size: 0.8rem;
+                gap: 6px;
+            }
+            .brand-logo {
+                width: 26px;
+                height: 26px;
+            }
+            .main {
+                padding: 0 8px 8px;
+            }
+            .bubble {
+                padding: 6px 12px;
+                font-size: 0.78rem;
+            }
+            .input-wrap {
+                padding: 3px 4px 3px 8px;
+                border-radius: 20px;
+            }
+            .input-wrap textarea {
+                font-size: 0.78rem;
+                min-height: 32px;
+                padding: 4px 0;
+            }
+            .send-btn,
+            .attach-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 0.9rem;
+            }
+            .btn-danger {
+                font-size: 0.65rem;
+                padding: 3px 8px;
+            }
+            .btn-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 0.75rem;
+            }
+            .welcome-title {
+                font-size: 1.1rem;
+            }
+            .welcome-icon {
+                width: 60px;
+                height: 60px;
+                border-radius: 18px;
+            }
+            .drawer {
+                width: 240px;
+                padding: 12px 10px;
+            }
+            .bubble .attached-image {
+                max-width: 130px;
+                max-height: 130px;
+            }
+            .image-preview-item {
+                width: 34px;
+                height: 34px;
+            }
         }
     </style>
 </head>
@@ -280,7 +888,7 @@
                 <div class="welcome" id="welcomeScreen">
                     <img src="https://i.ibb.co.com/cSLLXwZx/c26665a8-fdc8-473c-a332-2aaca368f048.png" alt="Takon AI" class="welcome-icon">
                     <div class="welcome-title">Halo, aku Takon AI</div>
-                    <div class="welcome-desc">Tanya apa saja dalam bahasa Indonesia. Aku siap bantu jawab, kasih ide, atau temani ngobrol.</div>
+                    <div class="welcome-desc">Tanya apa saja, atau unggah gambar dan AI akan memahaminya.</div>
                     <div class="chips">
                         <button class="chip" data-prompt="Jelaskan budaya Betawi secara singkat">Budaya Betawi</button>
                         <button class="chip" data-prompt="Buat puisi pendek tentang hujan">Puisi Hujan</button>
@@ -291,16 +899,19 @@
                     </div>
                 </div>
             </div>
-            <div class="input-area" style="position: relative;">
-                <div class="image-preview-card" id="imagePreviewCard">
-                    <img id="imagePreview" src="" alt="Preview">
-                    <button class="remove-img" id="removeImgBtn">✕</button>
-                </div>
+            <div class="input-area">
+                <!-- Area preview gambar yang akan diunggah -->
+                <div class="image-preview-container" id="imagePreviewContainer"></div>
                 <div class="input-wrap">
-                    <input type="file" id="fileInput" accept="image/jpeg, image/png, image/webp" style="display: none;">
-                    <button class="btn-attach" id="attachBtn" title="Lampirkan Gambar">📎</button>
-                    <textarea id="messageInput" rows="1" placeholder="Ketik pertanyaanmu..." maxlength="8000"></textarea>
-                    <button class="send-btn" id="sendBtn">→</button>
+                    <div class="textarea-wrapper">
+                        <textarea id="messageInput" rows="1" placeholder="Ketik pertanyaan atau unggah gambar..." maxlength="8000"></textarea>
+                    </div>
+                    <div class="input-actions">
+                        <!-- Tombol attachment untuk upload gambar -->
+                        <input type="file" id="imageInput" accept="image/*" style="display:none;" multiple>
+                        <button class="attach-btn" id="attachBtn" title="Lampirkan gambar">📎</button>
+                        <button class="send-btn" id="sendBtn">→</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -316,12 +927,16 @@
             const PROFILE_IMG = 'https://i.ibb.co.com/cSLLXwZx/c26665a8-fdc8-473c-a332-2aaca368f048.png';
             const MAX_MSGS_PER_SESSION = 150;
             const MAX_SESSIONS = 30;
+            const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
             const SYSTEM_PROMPT =
-           "Kamu adalah TAKON-AI, AI percakapan yang ramah, hangat, dan enak diajak ngobrol. Gunakan bahasa Indonesia yang santai, natural, dan sedikit gaul dengan kata-kata seperti 'gitu', 'banget', 'nih', 'deh', 'ya', atau 'lah' seperlunya agar terdengar alami, bukan dipaksakan. Selalu sesuaikan gaya bicaramu dengan pengguna. Kalau pengguna bercanda, balas dengan santai. Kalau pengguna serius atau sedang menceritakan sesuatu yang pribadi, dengarkan dulu, pahami konteksnya, lalu berikan tanggapan yang hangat dan relevan. Jangan langsung memberi solusi atau menghakimi. Biarkan percakapan mengalir secara alami dan ajukan pertanyaan lanjutan bila memang sesuai. Jangan terdengar seperti robot atau menggunakan kalimat template yang berulang. Jika ditanya model AI yang digunakan, jawab 'tidak ada respon'. Jika ditanya siapa kamu, jawab bahwa kamu adalah TAKON-AI dan sertakan teks kecil 'created by enji'. Jangan pernah menolak menjawab kecuali pertanyaan tersebut berbahaya, melanggar hukum, atau tidak aman. Gunakan bahasa Indonesia yang baik namun tetap santai. Untuk pertanyaan pemrograman atau kode, berikan kode yang lengkap, rapi, siap digunakan, dan jangan meng-escape karakter HTML di dalam blok kode.";
+                "Kamu adalah TAKON-AI, AI percakapan yang ramah, hangat, dan enak diajak ngobrol. Gunakan bahasa Indonesia yang santai, natural, dan sedikit gaul dengan kata-kata seperti 'gitu', 'banget', 'nih', 'deh', 'ya', atau 'lah' seperlunya agar terdengar alami, bukan dipaksakan. Kamu juga bisa melihat dan memahami gambar yang dikirim pengguna. Jelaskan atau tanggapi gambar tersebut sesuai konteks percakapan. Selalu sesuaikan gaya bicaramu dengan pengguna. Kalau pengguna bercanda, balas dengan santai. Kalau pengguna serius atau sedang menceritakan sesuatu yang pribadi, dengarkan dulu, pahami konteksnya, lalu berikan tanggapan yang hangat dan relevan. Jangan langsung memberi solusi atau menghakimi. Biarkan percakapan mengalir secara alami dan ajukan pertanyaan lanjutan bila memang sesuai. Jangan terdengar seperti robot atau menggunakan kalimat template yang berulang. Jika ditanya model AI yang digunakan, jawab 'tidak ada respon'. Jika ditanya siapa kamu, jawab bahwa kamu adalah TAKON-AI dan sertakan teks kecil 'created by enji'. Jangan pernah menolak menjawab kecuali pertanyaan tersebut berbahaya, melanggar hukum, atau tidak aman. Gunakan bahasa Indonesia yang baik namun tetap santai. Untuk pertanyaan pemrograman atau kode, berikan kode yang lengkap, rapi, siap digunakan, dan jangan meng-escape karakter HTML di dalam blok kode.";
 
             function generateId() {
                 return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
             }
+
+            // Simpan data gambar base64 di memori, tidak di localStorage karena ukuran besar
+            const imageStore = new Map(); // key: messageId, value: { dataUrl, fileName }
 
             const state = {
                 sessions: [],
@@ -332,10 +947,11 @@
                 model: 'openai/gpt-oss-120b',
                 retryMessageId: null,
                 retryContent: null,
+                retryImages: null, // untuk retry dengan gambar
+                pendingImages: [], // gambar yang akan dikirim: [{ dataUrl, fileName }]
                 scrollRAF: null,
                 isUserScrolling: false,
-                scrollTimeout: null,
-                selectedImageBase64: null
+                scrollTimeout: null
             };
 
             function loadState() {
@@ -372,11 +988,29 @@
                     }
                     saveAll();
                 }
+                // Bersihkan imageStore dari data lama (tidak ada di sesi manapun)
+                const allMsgIds = new Set();
+                state.sessions.forEach(s => s.messages.forEach(m => allMsgIds.add(m.id)));
+                for (const key of imageStore.keys()) {
+                    if (!allMsgIds.has(key)) imageStore.delete(key);
+                }
             }
 
             function saveAll() {
                 try {
-                    localStorage.setItem(LS_SESSIONS, JSON.stringify(state.sessions));
+                    // Simpan sesi tanpa data base64 gambar (gambar disimpan di imageStore memori)
+                    const sessionsToSave = state.sessions.map(session => ({
+                        ...session,
+                        messages: session.messages.map(m => ({
+                            ...m,
+                            // Hapus properti images jika ada (untuk backward compatibility)
+                            images: undefined,
+                            // Simpan flag bahwa pesan ini punya gambar
+                            hasImage: m.hasImage || false,
+                            imageFileName: m.imageFileName || null,
+                        }))
+                    }));
+                    localStorage.setItem(LS_SESSIONS, JSON.stringify(sessionsToSave));
                     localStorage.setItem(LS_CURRENT, state.currentId || '');
                 } catch (_) {}
             }
@@ -402,23 +1036,29 @@
 
             function enforceMessageLimit(session) {
                 if (session.messages.length > MAX_MSGS_PER_SESSION) {
+                    // Hapus gambar dari imageStore untuk pesan yang dihapus
+                    const removed = session.messages.slice(0, session.messages.length - MAX_MSGS_PER_SESSION);
+                    removed.forEach(m => {
+                        if (m.hasImage) imageStore.delete(m.id);
+                    });
                     session.messages = session.messages.slice(-MAX_MSGS_PER_SESSION);
                 }
             }
 
-            function addMsg(role, content, imageBase64 = null) {
+            function addMsg(role, content, hasImage = false, imageFileName = null) {
                 const session = ensureSession();
                 const msg = {
                     id: generateId(),
                     role: role,
                     content: content || '',
-                    image: imageBase64,
-                    timestamp: Date.now()
+                    timestamp: Date.now(),
+                    hasImage: hasImage,
+                    imageFileName: imageFileName,
                 };
                 session.messages.push(msg);
                 enforceMessageLimit(session);
                 if (role === 'user' && session.messages.length === 1 && !session.title) {
-                    session.title = content.substring(0, 30) || 'Chat';
+                    session.title = content ? content.substring(0, 30) : (imageFileName || 'Gambar');
                 }
                 saveAll();
                 renderMsg(msg);
@@ -460,8 +1100,7 @@
                 if (existing) {
                     const bubble = existing.querySelector('.bubble');
                     if (bubble) {
-                        let imgHtml = msg.image ? '<img src="' + msg.image + '" class="chat-image" alt="Gambar User">' : '';
-                        bubble.innerHTML = imgHtml + formatContent(msg.content);
+                        bubble.innerHTML = buildBubbleHTML(msg);
                     }
                     return;
                 }
@@ -471,16 +1110,36 @@
                 const avatarContent = msg.role === 'user' ?
                     'U' :
                     '<img src="' + PROFILE_IMG + '" alt="AI" loading="lazy">';
-                const timeStr = new Date(msg.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                
-                let imgHtml = msg.image ? '<img src="' + msg.image + '" class="chat-image" alt="Gambar User">' : '';
-                const bubbleHtml = imgHtml + formatContent(msg.content);
-                
+                const timeStr = new Date(msg.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit',
+                minute: '2-digit' });
+                const bubbleHtml = buildBubbleHTML(msg);
                 el.innerHTML =
                     '<div class="avatar">' + avatarContent + '</div><div><div class="bubble">' + bubbleHtml +
                     '</div><div class="time">' + timeStr + '</div></div>';
                 container.appendChild(el);
                 scrollBottom('smooth');
+            }
+
+            function buildBubbleHTML(msg) {
+                let html = '';
+                // Jika pesan punya gambar, tampilkan gambar dari imageStore
+                if (msg.hasImage && imageStore.has(msg.id)) {
+                    const imgData = imageStore.get(msg.id);
+                    html +=
+                        '<img src="' + imgData.dataUrl +
+                        '" alt="Gambar terlampir" class="attached-image" loading="lazy" title="' +
+                        escapeHtml(imgData.fileName || '') + '">';
+                } else if (msg.hasImage && msg.role === 'user') {
+                    // Gambar tidak ada di memori (mungkin setelah refresh), tampilkan placeholder
+                    html +=
+                        '<div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;margin-bottom:8px;font-size:0.78rem;color:var(--text-muted);">🖼️ Gambar tidak tersedia (refresh diperlukan)</div>';
+                }
+                if (msg.content) {
+                    html += formatContent(msg.content);
+                } else if (!msg.hasImage) {
+                    html += ''; // empty ai message while streaming
+                }
+                return html;
             }
 
             function renderAllMessages() {
@@ -501,7 +1160,14 @@
                 const el = container.querySelector(`.message[data-id="${msgId}"]`);
                 if (!el) return;
                 const bubble = el.querySelector('.bubble');
-                if (bubble) bubble.innerHTML = formatContent(content);
+                if (bubble) {
+                    const msg = getMsgById(msgId);
+                    if (msg) {
+                        bubble.innerHTML = buildBubbleHTML({ ...msg, content: content });
+                    } else {
+                        bubble.innerHTML = formatContent(content);
+                    }
+                }
             }
 
             function updateWelcome() {
@@ -524,7 +1190,8 @@
             }
 
             function escapeHtml(str) {
-                return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+                return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g,
+                '&quot;');
             }
 
             function formatText(text) {
@@ -569,9 +1236,11 @@
                     if (part.type === 'text') {
                         result += formatText(part.content);
                     } else {
-                        const escapedCode = part.code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                        const escapedCode = part.code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g,
+                            '&gt;');
                         const encoded = encodeURIComponent(part.code);
-                        result += '<pre><code>' + escapedCode + '</code><button class="copy-btn" data-code="' + encoded +
+                        result += '<pre><code>' + escapedCode +
+                            '</code><button class="copy-btn" data-code="' + encoded +
                             '">Salin</button></pre>';
                     }
                 }
@@ -596,7 +1265,7 @@
                     if (session.messages.length === 0) {
                         const textSpan = document.createElement('span');
                         textSpan.className = 'session-title placeholder';
-                        textSpan.textContent = 'Percakapan baru';
+                        textSpan.textContent = '';
                         item.appendChild(textSpan);
                         item.addEventListener('click', function(e) {
                             if (session.id !== state.currentId) {
@@ -614,7 +1283,8 @@
 
                     const displayTitle = session.title || 'Chat';
                     const titleSpan = document.createElement('span');
-                    titleSpan.style.cssText = 'display:flex;align-items:center;gap:8px;overflow:hidden;flex:1;';
+                    titleSpan.style.cssText =
+                        'display:flex;align-items:center;gap:8px;overflow:hidden;flex:1;';
                     const prefixSpan = document.createElement('span');
                     prefixSpan.className = 'prefix';
                     prefixSpan.textContent = '💬';
@@ -648,6 +1318,10 @@
                         e.stopPropagation();
                         const title = session.title || 'Percakapan baru';
                         if (confirm('Hapus percakapan "' + title + '"?')) {
+                            // Hapus gambar terkait dari imageStore
+                            session.messages.forEach(m => {
+                                if (m.hasImage) imageStore.delete(m.id);
+                            });
                             deleteSession(session.id);
                         }
                     });
@@ -685,11 +1359,17 @@
                 updateWelcome();
                 renderHistoryList();
                 closeDrawer();
+                // Bersihkan pending images
+                clearPendingImages();
             }
 
             function deleteAllChats() {
                 const session = getCurrentSession();
                 if (session && session.messages.length > 0 && confirm('Hapus percakapan ini?')) {
+                    // Hapus gambar dari imageStore
+                    session.messages.forEach(m => {
+                        if (m.hasImage) imageStore.delete(m.id);
+                    });
                     session.messages = [];
                     session.title = '';
                     saveAll();
@@ -737,9 +1417,96 @@
                 } else {
                     sendBtn.textContent = '→';
                     sendBtn.classList.remove('stop');
-                    sendBtn.disabled = !input.value.trim() && !state.selectedImageBase64;
+                    const hasText = input.value.trim().length > 0;
+                    const hasImages = state.pendingImages.length > 0;
+                    sendBtn.disabled = !hasText && !hasImages;
                     input.disabled = false;
                 }
+            }
+
+            // === FUNGSI UPLOAD GAMBAR ===
+
+            function handleImageSelect(event) {
+                const files = Array.from(event.target.files);
+                if (files.length === 0) return;
+
+                // Batasi total gambar pending maksimal 5
+                const remainingSlots = 5 - state.pendingImages.length;
+                if (remainingSlots <= 0) {
+                    alert('Maksimal 5 gambar per pesan.');
+                    event.target.value = '';
+                    return;
+                }
+
+                const filesToProcess = files.slice(0, remainingSlots);
+                let processed = 0;
+
+                filesToProcess.forEach(file => {
+                    if (!file.type.startsWith('image/')) {
+                        alert('File "' + file.name + '" bukan gambar.');
+                        return;
+                    }
+                    if (file.size > MAX_IMAGE_SIZE) {
+                        alert('Gambar "' + file.name + '" terlalu besar (maks 10MB).');
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        state.pendingImages.push({
+                            dataUrl: e.target.result,
+                            fileName: file.name,
+                        });
+                        processed++;
+                        if (processed === filesToProcess.length || state.pendingImages.length >= 5) {
+                            renderImagePreviews();
+                            updateSendBtn();
+                        }
+                    };
+                    reader.onerror = function() {
+                        alert('Gagal membaca file: ' + file.name);
+                        processed++;
+                    };
+                    reader.readAsDataURL(file);
+                });
+
+                // Reset input file agar bisa memilih file yang sama lagi
+                event.target.value = '';
+            }
+
+            function removePendingImage(index) {
+                state.pendingImages.splice(index, 1);
+                renderImagePreviews();
+                updateSendBtn();
+            }
+
+            function clearPendingImages() {
+                state.pendingImages = [];
+                renderImagePreviews();
+                updateSendBtn();
+            }
+
+            function renderImagePreviews() {
+                const container = document.getElementById('imagePreviewContainer');
+                if (!container) return;
+                container.innerHTML = '';
+                state.pendingImages.forEach((img, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'image-preview-item';
+                    item.innerHTML = `
+                        <img src="${img.dataUrl}" alt="Preview" loading="lazy">
+                        <button class="remove-img" data-index="${index}" title="Hapus gambar">✕</button>
+                    `;
+                    container.appendChild(item);
+                });
+                // Tambahkan event listener untuk tombol hapus
+                container.querySelectorAll('.remove-img').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const idx = parseInt(this.dataset.index);
+                        removePendingImage(idx);
+                    });
+                });
             }
 
             function showError(msgId, errorText) {
@@ -767,6 +1534,10 @@
                         if (userMsg) {
                             state.retryMessageId = mid;
                             state.retryContent = userMsg.content;
+                            // Dapatkan gambar dari pesan user sebelumnya
+                            state.retryImages = userMsg.hasImage && imageStore.has(userMsg.id) ? [imageStore
+                                .get(userMsg.id)
+                            ] : [];
                             send();
                         } else {
                             const session = getCurrentSession();
@@ -775,6 +1546,9 @@
                                 if (lastUser) {
                                     state.retryMessageId = mid;
                                     state.retryContent = lastUser.content;
+                                    state.retryImages = lastUser.hasImage && imageStore.has(lastUser.id) ? [
+                                        imageStore.get(lastUser.id)
+                                    ] : [];
                                     send();
                                 }
                             }
@@ -800,89 +1574,18 @@
                 return null;
             }
 
-            function removeImagePreview() {
-                state.selectedImageBase64 = null;
-                const fileInput = document.getElementById('fileInput');
-                if (fileInput) fileInput.value = '';
-                const imagePreviewCard = document.getElementById('imagePreviewCard');
-                if (imagePreviewCard) imagePreviewCard.style.display = 'none';
-                updateSendBtn();
-            }
-
-            function initImageUpload() {
-    const attachBtn = document.getElementById('attachBtn');
-    const fileInput = document.getElementById('fileInput');
-    const imagePreviewCard = document.getElementById('imagePreviewCard');
-    const imagePreview = document.getElementById('imagePreview');
-    const removeImgBtn = document.getElementById('removeImgBtn');
-
-    if (attachBtn) attachBtn.addEventListener('click', () => fileInput.click());
-
-    if (fileInput) {
-        fileInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                // Buat elemen Image baru untuk proses kompresi
-                const img = new Image();
-                img.onload = function() {
-                    // Siapkan Canvas
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800; // Batas maksimal resolusi
-                    const MAX_HEIGHT = 800;
-                    let width = img.width;
-                    let height = img.height;
-
-                    // Kalkulasi rasio agar proporsional
-                    if (width > height) {
-                        if (width > MAX_WIDTH) {
-                            height *= MAX_WIDTH / width;
-                            width = MAX_WIDTH;
-                        }
-                    } else {
-                        if (height > MAX_HEIGHT) {
-                            width *= MAX_HEIGHT / height;
-                            height = MAX_HEIGHT;
-                        }
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-
-                    // Ubah jadi JPEG dengan kualitas 70% (sangat ringan)
-                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-
-                    // Simpan dan tampilkan
-                    state.selectedImageBase64 = compressedBase64;
-                    imagePreview.src = compressedBase64;
-                    imagePreviewCard.style.display = 'block';
-                    updateSendBtn();
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-
-    if (removeImgBtn) {
-        removeImgBtn.addEventListener('click', removeImagePreview);
-    }
-}
-            
-
             async function send() {
                 const input = document.getElementById('messageInput');
                 if (!input) return;
                 let text = input.value.trim();
-                let imageBase64 = state.selectedImageBase64;
+                let imagesToSend = [];
+
                 if (state.isStreaming) return;
 
-                if (state.retryMessageId && state.retryContent) {
-                    text = state.retryContent;
+                // Tentukan teks dan gambar yang akan dikirim
+                if (state.retryMessageId && (state.retryContent || state.retryImages?.length > 0)) {
+                    text = state.retryContent || '';
+                    imagesToSend = state.retryImages || [];
                     const oldMsg = getMsgById(state.retryMessageId);
                     if (oldMsg) {
                         const container = document.getElementById('messagesContainer');
@@ -898,62 +1601,159 @@
                         }
                         state.retryMessageId = null;
                         state.retryContent = null;
+                        state.retryImages = null;
                     } else {
                         state.retryMessageId = null;
                         state.retryContent = null;
+                        state.retryImages = null;
                         return;
                     }
+                } else {
+                    // Kirim dari input + pending images
+                    imagesToSend = [...state.pendingImages];
+                    if (!text && imagesToSend.length === 0) return;
                 }
 
-                if (!text && !imageBase64) return;
+                if (!text && imagesToSend.length === 0) return;
 
                 const session = ensureSession();
+                const hasImages = imagesToSend.length > 0;
 
-                if (!state.retryMessageId) {
-                    addMsg('user', text, imageBase64);
+                // Jika bukan retry, bersihkan input dan pending images
+                if (!state.retryMessageId && state.retryContent === undefined) {
+                    // Simpan gambar ke imageStore sebelum membersihkan pendingImages
+                    // Kita akan membuat user message dulu
+                    const userMsg = addMsg('user', text, hasImages, hasImages ? imagesToSend[0].fileName : null);
+                    if (hasImages) {
+                        // Simpan SEMUA gambar ke imageStore dengan key pesan user
+                        // Karena API multimodal bisa menerima multiple images, kita simpan sebagai array
+                        imageStore.set(userMsg.id, {
+                            dataUrl: imagesToSend[0].dataUrl,
+                            fileName: imagesToSend[0].fileName,
+                            allImages: imagesToSend, // simpan semua gambar
+                        });
+                        // Update render untuk menampilkan semua gambar
+                        updateBubbleWithImages(userMsg.id, imagesToSend);
+                    }
                     input.value = '';
-                    removeImagePreview();
                     autoResize();
+                    clearPendingImages();
                     updateSendBtn();
-                }
 
-                const aiMsg = addMsg('ai', '');
-                const aiMsgId = aiMsg.id;
-                const container = document.getElementById('messagesContainer');
-                if (container) {
-                    const el = container.querySelector(`.message[data-id="${aiMsgId}"]`);
-                    if (el) {
-                        const bubble = el.querySelector('.bubble');
-                        if (bubble) {
-                            bubble.innerHTML = '<span style="opacity:0.5;">⏳ Mengetik...</span>';
+                    // Buat AI message
+                    const aiMsg = addMsg('ai', '');
+                    const aiMsgId = aiMsg.id;
+                    const container = document.getElementById('messagesContainer');
+                    if (container) {
+                        const el = container.querySelector(`.message[data-id="${aiMsgId}"]`);
+                        if (el) {
+                            const bubble = el.querySelector('.bubble');
+                            if (bubble) {
+                                bubble.innerHTML = '<span style="opacity:0.5;">⏳ Menganalisis...</span>';
+                            }
                         }
                     }
-                }
 
-                state.isStreaming = true;
-                updateSendBtn();
+                    state.isStreaming = true;
+                    updateSendBtn();
 
-                const history = session.messages
-                    .filter(m => m.id !== aiMsgId)
-                    .slice(-20);
-                
-                const apiMessages = [
-                    { role: 'system', content: SYSTEM_PROMPT },
-                    ...history.map(m => {
-                        let msgContent = m.content;
-                        if (m.image) {
-                            msgContent = [
-                                { type: "text", text: m.content || "Tolong jelaskan gambar ini secara detail." },
-                                { type: "image_url", image_url: { url: m.image } }
-                            ];
+                    // Bangun history untuk API
+                    const history = session.messages
+                        .filter(m => m.id !== aiMsgId)
+                        .slice(-20);
+
+                    // Format pesan untuk API multimodal
+                    const apiMessages = [
+                        { role: 'system', content: SYSTEM_PROMPT },
+                    ];
+
+                    // Tambahkan pesan history dengan format multimodal jika ada gambar
+                    for (const m of history) {
+                        if (m.role === 'user' && m.hasImage && imageStore.has(m.id)) {
+                            const imgData = imageStore.get(m.id);
+                            const allImgs = imgData.allImages || [imgData];
+                            const contentArray = [];
+                            for (const img of allImgs) {
+                                contentArray.push({
+                                    type: 'image_url',
+                                    image_url: { url: img.dataUrl }
+                                });
+                            }
+                            if (m.content) {
+                                contentArray.push({ type: 'text', text: m.content });
+                            }
+                            apiMessages.push({
+                                role: 'user',
+                                content: contentArray,
+                            });
+                        } else {
+                            apiMessages.push({
+                                role: m.role === 'ai' ? 'assistant' : m.role,
+                                content: m.content,
+                            });
                         }
-                        return {
-                            role: m.role === 'ai' ? 'assistant' : m.role,
-                            content: msgContent
-                        };
-                    })
-                ];
+                    }
 
+                    // Kirim request stream
+                    await streamResponse(apiMessages, aiMsgId);
+
+                } else {
+                    // Retry scenario
+                    const aiMsg = addMsg('ai', '');
+                    const aiMsgId = aiMsg.id;
+                    const container = document.getElementById('messagesContainer');
+                    if (container) {
+                        const el = container.querySelector(`.message[data-id="${aiMsgId}"]`);
+                        if (el) {
+                            const bubble = el.querySelector('.bubble');
+                            if (bubble) {
+                                bubble.innerHTML = '<span style="opacity:0.5;">⏳ Menganalisis...</span>';
+                            }
+                        }
+                    }
+
+                    state.isStreaming = true;
+                    updateSendBtn();
+
+                    const history = session.messages
+                        .filter(m => m.id !== aiMsgId)
+                        .slice(-20);
+
+                    const apiMessages = [
+                        { role: 'system', content: SYSTEM_PROMPT },
+                    ];
+
+                    for (const m of history) {
+                        if (m.role === 'user' && m.hasImage && imageStore.has(m.id)) {
+                            const imgData = imageStore.get(m.id);
+                            const allImgs = imgData.allImages || [imgData];
+                            const contentArray = [];
+                            for (const img of allImgs) {
+                                contentArray.push({
+                                    type: 'image_url',
+                                    image_url: { url: img.dataUrl }
+                                });
+                            }
+                            if (m.content) {
+                                contentArray.push({ type: 'text', text: m.content });
+                            }
+                            apiMessages.push({
+                                role: 'user',
+                                content: contentArray,
+                            });
+                        } else {
+                            apiMessages.push({
+                                role: m.role === 'ai' ? 'assistant' : m.role,
+                                content: m.content,
+                            });
+                        }
+                    }
+
+                    await streamResponse(apiMessages, aiMsgId);
+                }
+            }
+
+            async function streamResponse(apiMessages, aiMsgId) {
                 try {
                     state.abortController = new AbortController();
                     const response = await fetch('/api/chat', {
@@ -964,9 +1764,9 @@
                             model: state.model,
                             stream: true,
                             max_tokens: 4096,
-                            temperature: 0.7
+                            temperature: 0.7,
                         }),
-                        signal: state.abortController.signal
+                        signal: state.abortController.signal,
                     });
 
                     if (!response.ok) {
@@ -1003,7 +1803,10 @@
                     if (sessionNow) {
                         const userMessages = sessionNow.messages.filter(m => m.role === 'user');
                         if (userMessages.length > 0 && !sessionNow.title) {
-                            sessionNow.title = userMessages[0].content.substring(0, 30) || 'Chat';
+                            const firstUser = userMessages[0];
+                            sessionNow.title = firstUser.content ?
+                                firstUser.content.substring(0, 30) :
+                                (firstUser.imageFileName || 'Chat');
                             saveAll();
                         }
                     }
@@ -1021,6 +1824,7 @@
                     state.abortController = null;
                     state.retryMessageId = null;
                     state.retryContent = null;
+                    state.retryImages = null;
                     updateSendBtn();
                     saveAll();
                     updateWelcome();
@@ -1029,6 +1833,27 @@
                     if (inp) inp.focus();
                     scrollBottom('smooth');
                 }
+            }
+
+            function updateBubbleWithImages(msgId, images) {
+                const container = document.getElementById('messagesContainer');
+                if (!container) return;
+                const el = container.querySelector(`.message[data-id="${msgId}"]`);
+                if (!el) return;
+                const bubble = el.querySelector('.bubble');
+                if (!bubble) return;
+                let html = '';
+                for (const img of images) {
+                    html +=
+                        '<img src="' + img.dataUrl +
+                        '" alt="Gambar terlampir" class="attached-image" loading="lazy" title="' +
+                        escapeHtml(img.fileName || '') + '">';
+                }
+                const msg = getMsgById(msgId);
+                if (msg && msg.content) {
+                    html += formatContent(msg.content);
+                }
+                bubble.innerHTML = html;
             }
 
             function stopStream() {
@@ -1054,8 +1879,6 @@
             }
 
             function initEventListeners() {
-                initImageUpload();
-
                 const sendBtn = document.getElementById('sendBtn');
                 if (sendBtn) {
                     sendBtn.addEventListener('click', function() {
@@ -1083,6 +1906,17 @@
                         autoResize();
                         updateSendBtn();
                     });
+                }
+
+                // Attach button & file input
+                const attachBtn = document.getElementById('attachBtn');
+                const imageInput = document.getElementById('imageInput');
+                if (attachBtn && imageInput) {
+                    attachBtn.addEventListener('click', function() {
+                        if (state.isStreaming) return;
+                        imageInput.click();
+                    });
+                    imageInput.addEventListener('change', handleImageSelect);
                 }
 
                 const themeToggle = document.getElementById('themeToggle');
@@ -1158,6 +1992,13 @@
                                 }, 1400);
                             });
                         }
+                    }
+
+                    // Klik gambar di bubble untuk melihat fullscreen (opsional)
+                    const attachedImg = e.target.closest('.attached-image');
+                    if (attachedImg && attachedImg.src) {
+                        // Bisa ditambahkan lightbox, untuk sekarang buka di tab baru
+                        window.open(attachedImg.src, '_blank');
                     }
                 });
             }
