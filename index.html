@@ -501,7 +501,6 @@
 
             function formatContent(text) {
                 if (!text) return '';
-                // Pecah teks berdasarkan blok kode
                 const parts = [];
                 let lastIndex = 0;
                 const regex = /```(\w*)\n?([\s\S]*?)```/g;
@@ -523,7 +522,6 @@
 
                 if (parts.length === 0) return '';
 
-                // Jika tidak ada blok kode, langsung format teks yang sudah di-escape
                 if (parts.length === 1 && parts[0].type === 'text') {
                     return formatText(parts[0].content);
                 }
@@ -533,7 +531,6 @@
                     if (part.type === 'text') {
                         result += formatText(part.content);
                     } else {
-                        // Kode: tampilkan asli dengan escape untuk keamanan
                         const escapedCode = part.code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
                         const encoded = encodeURIComponent(part.code);
                         result += '<pre><code>' + escapedCode + '</code><button class="copy-btn" data-code="' + encoded +
@@ -559,9 +556,10 @@
                     item.className = 'history-item';
 
                     if (session.messages.length === 0) {
+                        // Hapus teks "Percakapan baru" – hanya tampilkan span kosong
                         const textSpan = document.createElement('span');
                         textSpan.className = 'session-title placeholder';
-                        textSpan.textContent = 'Percakapan baru';
+                        textSpan.textContent = ''; // kosong
                         item.appendChild(textSpan);
                         item.addEventListener('click', function(e) {
                             if (session.id !== state.currentId) {
