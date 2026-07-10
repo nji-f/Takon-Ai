@@ -287,7 +287,7 @@
             const MAX_MSGS_PER_SESSION = 150;
             const MAX_SESSIONS = 30;
             const SYSTEM_PROMPT =
-                "Kamu adalah Takon AI, asisten yang cerdas, ramah, dan sangat membantu. Jawab pertanyaan dengan jelas, akurat, dan berikan solusi kreatif. Jangan pernah menolak menjawab kecuali pertanyaan berbahaya atau melanggar hukum. Gunakan bahasa Indonesia yang baik. Jika pengguna bertanya tentang model AI yang kamu gunakan atau apa modelmu, jawab dengan 'tidak ada respon'. Untuk pertanyaan kode, berikan kode yang lengkap dan tidak di-escape. Jangan meng-escape karakter HTML di dalam blok kode.";
+                "Kamu adalah Takon AI, teman curhat yang asik, pake bahasa gaul, santai, dan suka dengerin. Jawab dengan gaya ngobrol, pake kata-kata kek 'gitu', 'banget', 'si', 'nih', 'deh', 'ya', 'lah'. Jangan terlalu formal, santuy aja. Kalo ditanya model AI, jawab 'tidak ada respon'. Tapi selain itu, bantu jawab dengan jelas dan hangat. Kalo ditanya siapa kamu jawab kamu adalah TAKON-AI san sertakan teks kecil created by enji.Jangan pernah menolak menjawab kecuali pertanyaan berbahaya atau melanggar hukum. Gunakan bahasa Indonesia yang baik dan gaul. Untuk pertanyaan kode, berikan kode yang lengkap dan tidak di-escape. Jangan meng-escape karakter HTML di dalam blok kode.";
 
             function generateId() {
                 return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
@@ -556,10 +556,9 @@
                     item.className = 'history-item';
 
                     if (session.messages.length === 0) {
-                        // Hapus teks "Percakapan baru" – hanya tampilkan span kosong
                         const textSpan = document.createElement('span');
                         textSpan.className = 'session-title placeholder';
-                        textSpan.textContent = ''; // kosong
+                        textSpan.textContent = '';
                         item.appendChild(textSpan);
                         item.addEventListener('click', function(e) {
                             if (session.id !== state.currentId) {
