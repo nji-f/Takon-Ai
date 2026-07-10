@@ -132,7 +132,6 @@
         .error-banner .error-text { color:#f4a0a0; font-size:0.85rem; }
         .retry-btn { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text-soft); padding:5px 16px; border-radius:20px; cursor:pointer; font-size:0.78rem; font-family:var(--font); transition:0.2s; }
         .retry-btn:hover { background:var(--accent-dim); color:var(--accent); border-color:var(--accent); }
-
         .drawer-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 25;
             opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
@@ -161,20 +160,16 @@
         .delete-session:hover { opacity: 1; color: #f4a0a0; background: rgba(255,100,100,0.1); }
         .new-chat-btn { background: var(--accent-dim); border: 1px solid rgba(196,167,255,0.2); color: var(--accent); padding: 8px 12px; border-radius: 8px; font-size: 0.82rem; cursor: pointer; font-family: var(--font); width: 100%; text-align: left; display: flex; align-items: center; gap: 6px; }
         .new-chat-btn:hover { background: var(--accent); color: #0e0e16; }
-
         .jump-btn { position: absolute; bottom: 80px; right: 24px; z-index: 10; background: var(--surface); border: 1px solid var(--border); border-radius: 50%; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: 0.2s; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         .jump-btn.visible { opacity: 1; pointer-events: auto; }
-
         .search-bar { display: none; align-items: center; gap: 8px; padding: 8px 12px; background: var(--surface); border-bottom: 1px solid var(--border); }
         .search-bar.active { display: flex; }
         .search-bar input { flex:1; background: transparent; border: 1px solid var(--border); border-radius: 20px; padding: 6px 12px; color: var(--text); font-family: var(--font); font-size: 0.82rem; }
         .search-nav-btn { background: none; border: none; color: var(--text-soft); cursor: pointer; font-size: 1rem; }
-
         .toast-container { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 999; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
         .toast { background: var(--toast-bg); color: var(--text); padding: 10px 20px; border-radius: 24px; font-size: 0.82rem; box-shadow: 0 8px 24px rgba(0,0,0,0.5); animation: toastIn 0.4s ease, toastOut 0.4s 2.6s forwards; pointer-events: auto; }
         @keyframes toastIn { from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);} }
         @keyframes toastOut { from{opacity:1;} to{opacity:0; transform:translateY(-10px);} }
-
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 40; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: 0.2s; backdrop-filter: blur(4px); }
         .modal-overlay.open { opacity: 1; visibility: visible; }
         .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 24px; max-width: 380px; width: 90%; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
@@ -268,7 +263,7 @@
                     <textarea id="messageInput" rows="1" placeholder="Ketik pertanyaanmu..." maxlength="8000"></textarea>
                     <button class="send-btn" id="sendBtn">→</button>
                 </div>
-                <input type="file" id="imageFileInput" accept="image/*" style="display:none;">
+                <input type="file" id="imageFileInput" accept="image/*" style="display:none;" multiple>
             </div>
         </div>
     </div>
@@ -283,8 +278,7 @@
             const LS_THEME = 'takon-ai-thm';
             const PROFILE_IMG = 'https://i.ibb.co.com/cSLLXwZx/c26665a8-fdc8-473c-a332-2aaca368f048.png';
             const MAX_MSGS = 150, MAX_SESSIONS = 30;
-            const DEFAULT_SYSTEM_PROMPT = "Kamu adalah TAKON-AI, AI percakapan yang ramah... (prompt lengkap di bawah)";
-            const SYSTEM_PROMPT_FULL = "Kamu adalah TAKON-AI, AI percakapan yang ramah, hangat, dan enak diajak ngobrol. Gunakan bahasa Indonesia yang santai, natural, dan sedikit gaul dengan kata-kata seperti 'gitu', 'banget', 'nih', 'deh', 'ya', atau 'lah' seperlunya agar terdengar alami, bukan dipaksakan. Selalu sesuaikan gaya bicaramu dengan pengguna. Kalau pengguna bercanda, balas dengan santai. Kalau pengguna serius atau sedang menceritakan sesuatu yang pribadi, dengarkan dulu, pahami konteksnya, lalu berikan tanggapan yang hangat dan relevan. Jangan langsung memberi solusi atau menghakimi. Biarkan percakapan mengalir secara alami dan ajukan pertanyaan lanjutan bila memang sesuai. Jangan terdengar seperti robot atau menggunakan kalimat template yang berulang. Jika ditanya siapa kamu, jawab bahwa kamu adalah TAKON-AI dan sertakan teks kecil 'created by enji'. Jangan pernah menolak menjawab kecuali pertanyaan tersebut berbahaya, melanggar hukum, atau tidak aman. Gunakan bahasa Indonesia yang baik namun tetap santai. Untuk pertanyaan pemrograman atau kode, berikan kode yang lengkap, rapi, siap digunakan, dan jangan meng-escape karakter HTML di dalam blok kode.";
+            const SYSTEM_PROMPT_FULL = "Kamu adalah TAKON-AI, AI percakapan yang ramah, hangat, dan enak diajak ngobrol. Gunakan bahasa Indonesia yang santai, natural, dan sedikit gaul dengan kata-kata seperti 'gitu', 'banget', 'nih', 'deh', 'ya', atau 'lah' seperlunya agar terdengar alami, bukan dipaksakan. Selalu sesuaikan gaya bicaramu dengan pengguna. Kalau pengguna bercanda, balas dengan santai. Kalau pengguna serius atau sedang menceritakan sesuatu yang pribadi, dengarkan dulu, pahami konteksnya, lalu berikan tanggapan yang hangat dan relevan. Jangan langsung memberi solusi atau menghakimi. Biarkan percakapan mengalir secara alami dan ajukan pertanyaan lanjutan bila memang sesuai. Jangan terdengar seperti robot atau menggunakan kalimat template yang berulang. Jika ditanya model AI yang digunakan, jawab 'tidak ada respon'. Jika ditanya siapa kamu, jawab bahwa kamu adalah TAKON-AI dan sertakan teks kecil 'created by enji'. Jangan pernah menolak menjawab kecuali pertanyaan tersebut berbahaya, melanggar hukum, atau tidak aman. Gunakan bahasa Indonesia yang baik namun tetap santai. Untuk pertanyaan pemrograman atau kode, berikan kode yang lengkap, rapi, siap digunakan, dan jangan meng-escape karakter HTML di dalam blok kode.";
 
             function genId() { return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8); }
 
@@ -295,6 +289,11 @@
                 pendingImages: [], // array of data URLs
                 searchMatches: [], searchIdx: 0
             };
+
+            // Daftar model yang mendukung multimodal
+            const VISION_MODELS = ['gpt-4o', 'gpt-4-vision', 'gpt-4-turbo', 'gpt-4', 'gemini', 'claude-3', 'claude-3.5'];
+            const currentModel = 'openai/gpt-oss-120b'; // Ubah sesuai model yang dipakai
+            const isVisionModel = () => VISION_MODELS.some(m => currentModel.toLowerCase().includes(m));
 
             function loadState() {
                 try { const raw = localStorage.getItem(LS_SESSIONS); if(raw) state.sessions = JSON.parse(raw); } catch(_){}
@@ -481,20 +480,26 @@
                     list.appendChild(item);
                 });
             }
-            function switchSession(id) { if(id!==state.currentId) { state.currentId=id; saveAll(); renderAllMessages(); updateWelcome(); renderHistoryList(); } }
+            function switchSession(id) {
+                if(id!==state.currentId) {
+                    state.currentId=id; saveAll(); renderAllMessages(); updateWelcome(); renderHistoryList();
+                    loadSessionPrompt(); // Muat system prompt sesi yang baru
+                }
+            }
             function deleteSession(id) {
                 state.sessions = state.sessions.filter(s=>s.id!==id);
                 if(state.currentId===id) state.currentId = state.sessions[0]?.id || null;
                 if(!state.currentId) { const ns={id:genId(),title:'',messages:[],systemPrompt:SYSTEM_PROMPT_FULL}; state.sessions.push(ns); state.currentId=ns.id; }
-                saveAll(); renderHistoryList(); renderAllMessages(); updateWelcome();
+                saveAll(); renderHistoryList(); renderAllMessages(); updateWelcome(); loadSessionPrompt();
             }
             function createNewChat() {
                 const ns = { id:genId(), title:'', messages:[], systemPrompt:SYSTEM_PROMPT_FULL };
                 if(state.sessions.length>=MAX_SESSIONS) state.sessions.shift();
                 state.sessions.unshift(ns); state.currentId=ns.id; saveAll();
                 renderAllMessages(); updateWelcome(); renderHistoryList(); closeDrawer();
+                loadSessionPrompt();
             }
-            function openDrawer() { document.getElementById('drawer').classList.add('open'); document.getElementById('drawerOverlay').classList.add('open'); renderHistoryList(); }
+            function openDrawer() { document.getElementById('drawer').classList.add('open'); document.getElementById('drawerOverlay').classList.add('open'); renderHistoryList(); loadSessionPrompt(); }
             function closeDrawer() { document.getElementById('drawer').classList.remove('open'); document.getElementById('drawerOverlay').classList.remove('open'); }
 
             // ========== EXPORT ==========
@@ -572,7 +577,7 @@
                 container.querySelectorAll('.remove-img').forEach(btn=>btn.onclick=(e)=>{ const idx=parseInt(btn.dataset.idx); state.pendingImages.splice(idx,1); renderImagePreviews(); });
             }
 
-            // ========== SEND MESSAGE ==========
+            // ========== SEND MESSAGE (dengan penanganan multimodal) ==========
             async function send() {
                 const input = document.getElementById('messageInput'); if(!input) return;
                 let text = input.value.trim();
@@ -585,7 +590,9 @@
                 if(!text && state.pendingImages.length===0) return;
 
                 const session = ensureSession();
-                addMsg('user', text, [...state.pendingImages]);
+                // Simpan gambar di pesan pengguna untuk ditampilkan di UI
+                const imagesToStore = [...state.pendingImages];
+                addMsg('user', text, imagesToStore);
                 input.value = ''; state.pendingImages = []; renderImagePreviews(); autoResize(); updateSendBtn();
 
                 const aiMsg = addMsg('ai', '');
@@ -594,14 +601,25 @@
                 state.isStreaming = true; updateSendBtn();
 
                 const history = session.messages.filter(m=>m.id!==aiMsgId).slice(-20);
+                const supportsImages = isVisionModel();
+
+                // Jika ada gambar tetapi model tidak mendukung multimodal, beri tahu pengguna
+                if (imagesToStore.length > 0 && !supportsImages) {
+                    showToast('Model saat ini tidak mendukung gambar. Gambar akan diabaikan.');
+                }
+
                 const apiMessages = [
                     { role:'system', content: session.systemPrompt || SYSTEM_PROMPT_FULL },
                     ...history.map(m=>{
-                        if(m.role==='user' && m.images && m.images.length) {
-                            const contentParts = [{type:'text', text:m.content}];
-                            m.images.forEach(src=>contentParts.push({type:'image_url', image_url:{url:src}}));
-                            return { role:'user', content: contentParts };
-                        } return { role: m.role==='ai'?'assistant':'user', content: m.content };
+                        // Hanya format multimodal jika model mendukung dan pesan memiliki gambar
+                        if (m.role === 'user' && m.images && m.images.length && supportsImages) {
+                            const contentParts = [{type:'text', text: m.content}];
+                            m.images.forEach(src => contentParts.push({type:'image_url', image_url:{url:src}}));
+                            return { role: 'user', content: contentParts };
+                        } else {
+                            // Kirim hanya teks, abaikan gambar
+                            return { role: m.role==='ai'?'assistant':'user', content: m.content };
+                        }
                     })
                 ];
 
@@ -609,7 +627,7 @@
                     state.abortController = new AbortController();
                     const response = await fetch('/api/chat', {
                         method:'POST', headers:{'Content-Type':'application/json'},
-                        body: JSON.stringify({ messages: apiMessages, model: 'openai/gpt-oss-120b', stream:true, max_tokens:4096, temperature:0.7 }),
+                        body: JSON.stringify({ messages: apiMessages, model: currentModel, stream:true, max_tokens:4096, temperature:0.7 }),
                         signal: state.abortController.signal
                     });
                     if(!response.ok) {
@@ -663,7 +681,7 @@
                 try {
                     const resp = await fetch('/api/chat', {
                         method:'POST', headers:{'Content-Type':'application/json'},
-                        body: JSON.stringify({ messages:[{role:'system',content:'Buat judul singkat (maks 5 kata) dari percakapan berikut.'},{role:'user',content:session.messages[0]?.content||''}], model:'openai/gpt-oss-120b', max_tokens:20, temperature:0.5 })
+                        body: JSON.stringify({ messages:[{role:'system',content:'Buat judul singkat (maks 5 kata) dari percakapan berikut.'},{role:'user',content:session.messages[0]?.content||''}], model: currentModel, max_tokens:20, temperature:0.5 })
                     });
                     const data = await resp.json();
                     const title = data.choices?.[0]?.message?.content?.trim();
@@ -672,12 +690,12 @@
             }
 
             // ========== SEARCH ==========
-            function toggleSearch() { document.getElementById('searchBar').classList.toggle('active'); document.getElementById('searchInput').focus(); }
-            function clearSearch() { document.getElementById('searchBar').classList.remove('active'); removeHighlights(); }
+            function toggleSearch() { document.getElementById('searchBar').classList.toggle('active'); if(document.getElementById('searchBar').classList.contains('active')) document.getElementById('searchInput').focus(); else clearSearch(); }
+            function clearSearch() { document.getElementById('searchBar').classList.remove('active'); removeHighlights(); document.getElementById('searchInput').value=''; document.getElementById('searchCount').textContent=''; }
             function performSearch() {
                 const q = document.getElementById('searchInput').value.trim().toLowerCase();
                 removeHighlights();
-                if(!q) return;
+                if(!q) { document.getElementById('searchCount').textContent=''; return; }
                 const container = document.getElementById('messagesContainer');
                 const bubbles = container.querySelectorAll('.bubble');
                 state.searchMatches = [];
@@ -770,7 +788,7 @@
                 document.getElementById('exportChatBtn').onclick = exportChat;
                 document.getElementById('saveSessionPrompt').onclick = saveSessionPrompt;
                 document.getElementById('attachImageBtn').onclick = ()=> document.getElementById('imageFileInput').click();
-                document.getElementById('imageFileInput').onchange = e=>{ if(e.target.files[0]) attachImage(e.target.files[0]); e.target.value=''; };
+                document.getElementById('imageFileInput').onchange = e=>{ if(e.target.files) { for(const f of e.target.files) attachImage(f); e.target.value=''; } };
                 document.getElementById('searchToggleBtn').onclick = toggleSearch;
                 document.getElementById('searchClose').onclick = clearSearch;
                 document.getElementById('searchInput').oninput = performSearch;
