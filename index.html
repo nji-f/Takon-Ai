@@ -810,34 +810,69 @@
             }
 
             function initImageUpload() {
-                const attachBtn = document.getElementById('attachBtn');
-                const fileInput = document.getElementById('fileInput');
-                const imagePreviewCard = document.getElementById('imagePreviewCard');
-                const imagePreview = document.getElementById('imagePreview');
-                const removeImgBtn = document.getElementById('removeImgBtn');
+    const attachBtn = document.getElementById('attachBtn');
+    const fileInput = document.getElementById('fileInput');
+    const imagePreviewCard = document.getElementById('imagePreviewCard');
+    const imagePreview = document.getElementById('imagePreview');
+    const removeImgBtn = document.getElementById('removeImgBtn');
 
-                if (attachBtn) attachBtn.addEventListener('click', () => fileInput.click());
+    if (attachBtn) attachBtn.addEventListener('click', () => fileInput.click());
 
-                if (fileInput) {
-                    fileInput.addEventListener('change', function(e) {
-                        const file = e.target.files[0];
-                        if (!file) return;
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
 
-                        const reader = new FileReader();
-                        reader.onload = function(event) {
-                            state.selectedImageBase64 = event.target.result;
-                            imagePreview.src = event.target.result;
-                            imagePreviewCard.style.display = 'block';
-                            updateSendBtn();
-                        };
-                        reader.readAsDataURL(file);
-                    });
-                }
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                // Buat elemen Image baru untuk proses kompresi
+                const img = new Image();
+                img.onload = function() {
+                    // Siapkan Canvas
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800; // Batas maksimal resolusi
+                    const MAX_HEIGHT = 800;
+                    let width = img.width;
+                    let height = img.height;
 
-                if (removeImgBtn) {
-                    removeImgBtn.addEventListener('click', removeImagePreview);
-                }
-            }
+                    // Kalkulasi rasio agar proporsional
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Ubah jadi JPEG dengan kualitas 70% (sangat ringan)
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+
+                    // Simpan dan tampilkan
+                    state.selectedImageBase64 = compressedBase64;
+                    imagePreview.src = compressedBase64;
+                    imagePreviewCard.style.display = 'block';
+                    updateSendBtn();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    if (removeImgBtn) {
+        removeImgBtn.addEventListener('click', removeImagePreview);
+    }
+}
+            
 
             async function send() {
                 const input = document.getElementById('messageInput');
