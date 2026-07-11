@@ -1,140 +1,93 @@
 // api/chat.js
-// Backend untuk Takon AI — menggunakan Gemini API langsung
+// Backend untuk Takon AI — menggunakan Groq API (LLaMA 3.2 Vision)
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method Not Allowed' });
     return;
   }
 
-  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-  if (!GEMINI_API_KEY) {
-    res.status(500).json({ error: 'Server configuration error' });
+  const GROQ_API_KEY = process.env.GROQ_API_KEY;
+  if (!GROQ_API_KEY) {
+    res.status(500).json({ error: 'Server configuration error: Missing GROQ_API_KEY' });
     return;
   }
 
-  const { messages, image, model = 'gemini-2.0-flash' } = req.body;
+  const { messages, image, model = 'llama-3.2-11b-vision-preview' } = req.body;
 
-  // ── 1. Konversi messages OpenAI-style ➜ format Gemini contents ──
-  let contents = [];
-  for (const msg of messages) {
-    // Lewati system prompt: Gemini tidak punya role system; bisa ditambahkan sebagai user message
-    if (msg.role === 'system') {
-      // Jika mau, bisa dijadikan pesan user pertama dengan teks "System: ..."
-      contents.push({
-        role: 'user',
-        parts: [{ text: `[System]: ${msg.content}` }]
-      });
-      continue;
-    }
+  // ── 1. Siapkan messages untuk Groq ──
+  let apiMessages = [...messages];
 
-    // Ubah role assistant → model
-    const role = msg.role === 'assistant' ? 'model' : 'user';
-    // Pastikan konten berbentuk array parts
-    const parts = [{ text: msg.content }];
-    contents.push({ role, parts });
-  }
-
-  // ── 2. Jika ada gambar, gabungkan ke pesan user terakhir ──
+  // Jika ada gambar, ubah pesan user terakhir menjadi multimodal
   if (image) {
-    // Cari pesan terakhir dengan role 'user'
+    // Cari indeks pesan user terakhir
     let lastUserIdx = -1;
-    for (let i = contents.length - 1; i >= 0; i--) {
-      if (contents[i].role === 'user') {
+    for (let i = apiMessages.length - 1; i >= 0; i--) {
+      if (apiMessages[i].role === 'user') {
         lastUserIdx = i;
         break;
       }
     }
-    // Kalau tidak ditemukan (misal history kosong), buat pesan user baru
-    if (lastUserIdx === -1) {
-      contents.push({ role: 'user', parts: [] });
-      lastUserIdx = contents.length - 1;
-    }
-    // Ekstrak mime type dan base64 dari data URL
-    const match = image.match(/^data:(image\/\w+);base64,(.+)$/);
-    if (match) {
-      const mimeType = match[1];
-      const base64Data = match[2];
-      contents[lastUserIdx].parts.push({
-        inlineData: {
-          mimeType,
-          data: base64Data
+
+    if (lastUserIdx !== -1) {
+      const originalText = apiMessages[lastUserIdx].content;
+      // Format multimodal: array dengan teks dan gambar
+      apiMessages[lastUserIdx].content = [
+        { type: 'text', text: originalText },
+        {
+          type: 'image_url',
+          image_url: {
+            url: image  // sudah berupa data URL (data:image/...;base64,...)
+          }
         }
-      });
-    } else {
-      // Jika bukan data URL valid, abaikan
-      console.warn('Invalid image data URL');
+      ];
     }
+    // Jika tidak ditemukan pesan user (seharusnya tidak terjadi), biarkan saja.
   }
 
-  // ── 3. Panggil Gemini API dengan SSE ──
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
-  
+  // ── 2. Kirim ke Groq API ──
   try {
-    const geminiRes = await fetch(url, {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
-        contents,
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 4096,
-        },
-        // safetySettings bisa disesuaikan jika perlu
-      }),
+        model,
+        messages: apiMessages,
+        stream: true,
+        max_tokens: 4096,
+        temperature: 0.7
+      })
     });
 
-    if (!geminiRes.ok) {
-      const errorText = await geminiRes.text();
-      res.status(geminiRes.status).json({ error: errorText });
+    if (!response.ok) {
+      const errorText = await response.text();
+      res.status(response.status).json({ error: errorText });
       return;
     }
 
-    // ── 4. Baca SSE dari Gemini dan kirim ulang sebagai OpenAI-style stream ──
+    // ── 3. Streaming respons balik ke frontend ──
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    const reader = geminiRes.body.getReader();
+    const reader = response.body.getReader();
     const decoder = new TextDecoder();
-    let buffer = '';
 
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
 
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      // Simpan potongan terakhir yang belum lengkap
-      buffer = lines.pop() || '';
-
-      for (const line of lines) {
-        if (!line.startsWith('data: ')) continue;
-        const jsonStr = line.slice(6).trim();
-        if (jsonStr === '[DONE]') continue;
-        try {
-          const parsed = JSON.parse(jsonStr);
-          // Dapatkan teks dari candidates
-          const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (text) {
-            // Format OpenAI chunk
-            const openAiChunk = JSON.stringify({
-              choices: [{
-                delta: { content: text }
-              }]
-            });
-            res.write(`data: ${openAiChunk}\n\n`);
-          }
-        } catch (_) {
-          // Skip json yang rusak
-        }
-      }
+      // Groq mengembalikan data dengan format OpenAI SSE yang sama
+      const chunk = decoder.decode(value, { stream: true });
+      // Teruskan mentah-mentah ke frontend
+      res.write(chunk);
     }
 
-    // Akhiri stream
-    res.write('data: [DONE]\n\n');
     res.end();
   } catch (error) {
-    console.error('Gemini stream error:', error);
+    console.error('Groq stream error:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
