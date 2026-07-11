@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   const {
     messages,
     image,
-    model = 'openai-gpt-5.5',
+    model = 'openai/gpt-5.5',
     max_tokens = 4096,
     temperature = 0.7
   } = req.body;
