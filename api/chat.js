@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   const {
     messages,
     image,
-    model = 'openai/gpt-5.5',
+    model = 'google/gemini-3.5-flash',
     max_tokens = 4096,
     temperature = 0.7
   } = req.body;
