@@ -7,19 +7,19 @@ export default async function handler(req, res) {
 
   const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
   if (!OPENROUTER_API_KEY) {
-    res.status(500).json({ error: 'Server configuration error: Missing OPENROUTER_API_KEY' });
+    res.status(500).json({ error: 'Missing OPENROUTER_API_KEY' });
     return;
   }
 
   const {
     messages,
     image,
-    model = 'google/gemini-3-flash-preview',
+    model = 'openai-gpt-5.5',
     max_tokens = 4096,
     temperature = 0.7
   } = req.body;
 
-  // ── 1. Data waktu & kurs real‑time ──
+  // ── 1. Data waktu & kurs (real‑time) ──
   let realtimeInfo = '';
   try {
     const now = new Date();
@@ -36,49 +36,26 @@ export default async function handler(req, res) {
       idrRate = data?.rates?.IDR;
     }
 
-    realtimeInfo = `[Informasi real‑time: Sekarang pukul ${timeStr}.`;
-    if (idrRate) realtimeInfo += ` Kurs USD ke IDR: 1 USD = Rp${idrRate.toLocaleString('id-ID')}.`;
+    realtimeInfo = `[Info: Sekarang ${timeStr}.`;
+    if (idrRate) realtimeInfo += ` 1 USD = Rp${idrRate.toLocaleString('id-ID')}.`;
     realtimeInfo += ']';
-  } catch (e) {
-    console.error('Gagal data real‑time:', e);
-  }
+  } catch (_) {}
 
-  // ── 2. Pencarian web otomatis via DuckDuckGo ──
+  // ── 2. Scraping Google Search otomatis ──
   let searchContext = '';
   const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
+
   if (lastUserMsg && typeof lastUserMsg.content === 'string' && !image) {
     const query = lastUserMsg.content.trim();
-    if (query.length > 3) { // minimal 4 karakter untuk mencari
-      try {
-        const ddgRes = await fetch(
-          `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`
-        );
-        if (ddgRes.ok) {
-          const data = await ddgRes.json();
-          let snippet = '';
-          if (data.AbstractText) {
-            snippet += `Informasi: ${data.AbstractText}\nSumber: ${data.AbstractURL}\n`;
-          }
-          if (data.RelatedTopics && data.RelatedTopics.length > 0) {
-            snippet += 'Topik terkait:\n';
-            data.RelatedTopics.slice(0, 3).forEach(topic => {
-              if (topic.Text) snippet += `- ${topic.Text}\n`;
-            });
-          }
-          if (snippet) {
-            searchContext = `\n\n[Hasil pencarian web untuk: "${query}"]\n${snippet}`;
-          }
-        }
-      } catch (e) {
-        console.error('DDG search error:', e);
-      }
+    if (query.length >= 4) {
+      searchContext = await fetchGoogleResults(query);
     }
   }
 
-  // ── 3. Siapkan messages untuk OpenRouter ──
+  // ── 3. Susun pesan ke AI ──
   let apiMessages = [...messages];
 
-  // Sisipkan info real‑time ke system prompt
+  // Masukkan info waktu/kurs ke system prompt
   if (realtimeInfo) {
     if (apiMessages.length > 0 && apiMessages[0].role === 'system') {
       apiMessages[0].content += '\n\n' + realtimeInfo;
@@ -87,12 +64,12 @@ export default async function handler(req, res) {
     }
   }
 
-  // Tambahkan hasil pencarian ke pesan user terakhir
+  // Tempel hasil pencarian ke pesan user terakhir
   if (searchContext && lastUserMsg) {
-    lastUserMsg.content += searchContext;
+    lastUserMsg.content += '\n\n[Hasil pencarian Google]\n' + searchContext;
   }
 
-  // ── 4. Jika ada gambar, ubah pesan user terakhir menjadi multimodal ──
+  // ── 4. Gambar (multimodal) ──
   if (image) {
     let lastUserIdx = -1;
     for (let i = apiMessages.length - 1; i >= 0; i--) {
@@ -117,7 +94,7 @@ export default async function handler(req, res) {
       headers: {
         'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://takon-ai.vercel.app', // sesuaikan domain
+        'HTTP-Referer': 'https://takon-ai.vercel.app',
         'X-Title': 'Takon AI'
       },
       body: JSON.stringify({
@@ -130,8 +107,8 @@ export default async function handler(req, res) {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      res.status(response.status).json({ error: errorText });
+      const err = await response.text();
+      res.status(response.status).json({ error: err });
       return;
     }
 
@@ -141,16 +118,58 @@ export default async function handler(req, res) {
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      const chunk = decoder.decode(value, { stream: true });
-      res.write(chunk);
+      res.write(decoder.decode(value, { stream: true }));
     }
     res.end();
   } catch (error) {
-    console.error('OpenRouter stream error:', error);
     res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+// ─── Fungsi Scraping Google (tanpa library) ───
+async function fetchGoogleResults(query) {
+  try {
+    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}&hl=id`;
+    const html = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
+    }).then(res => res.text());
+
+    // Ambil blok hasil pencarian (setiap result biasanya diawali <div class="g">)
+    const results = [];
+    const blocks = html.split('<div class="g">');
+    for (let i = 1; i < blocks.length && results.length < 3; i++) {
+      const block = blocks[i];
+
+      // Cari judul (biasanya di dalam <h3>)
+      const titleMatch = block.match(/<h3[^>]*>(.*?)<\/h3>/i);
+      const title = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, '').trim() : '';
+
+      // Cari cuplikan (snippet) – ambil teks setelah judul sampai link berikutnya
+      const snippetMatch = block.match(/<div class="VwiC3b[^"]*"[^>]*>(.*?)<\/div>/i) ||
+                          block.match(/<span class="aCOpRe"[^>]*>(.*?)<\/span>/i);
+      const snippet = snippetMatch ? snippetMatch[1].replace(/<[^>]+>/g, '').trim() : '';
+
+      if (title || snippet) {
+        results.push(`${title}\n${snippet}`);
+      }
+    }
+
+    if (results.length > 0) {
+      return results.join('\n\n');
+    }
+    // Fallback: jika tidak dapat apa‑apa, coba ambil meta description
+    const metaMatch = html.match(/<meta name="description" content="([^"]+)"/i);
+    if (metaMatch) {
+      return `Deskripsi: ${metaMatch[1]}`;
+    }
+    return null;
+  } catch (e) {
+    console.error('Scraping error:', e);
+    return null;
   }
 }
