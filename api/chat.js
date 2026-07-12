@@ -14,12 +14,12 @@ export default async function handler(req, res) {
   const {
     messages,
     image,
-    model = 'google/gemini-3-flash-preview',
+    model = 'google/gemini-3-flash-preview', // default sesuai permintaan
     max_tokens = 4096,
     temperature = 0.7
   } = req.body;
 
-  // ── 1. Data waktu & kurs (real‑time) ──
+  // ── 1. Info waktu & kurs (real‑time) ──
   let realtimeInfo = '';
   try {
     const now = new Date();
@@ -36,52 +36,48 @@ export default async function handler(req, res) {
       idrRate = data?.rates?.IDR;
     }
 
-    realtimeInfo = `[Info: Sekarang ${timeStr}.`;
+    realtimeInfo = `[Info real‑time: Sekarang ${timeStr}.`;
     if (idrRate) realtimeInfo += ` 1 USD = Rp${idrRate.toLocaleString('id-ID')}.`;
     realtimeInfo += ']';
   } catch (_) {}
 
-  // ── 2. Scraping Google Search otomatis ──
+  // ── 2. Search web otomatis ──
   let searchContext = '';
   const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
 
   if (lastUserMsg && typeof lastUserMsg.content === 'string' && !image) {
     const query = lastUserMsg.content.trim();
     if (query.length >= 4) {
-      searchContext = await fetchGoogleResults(query);
+      searchContext = await searchWeb(query);
     }
   }
 
-  // ── 3. Susun pesan ke AI ──
-  let apiMessages = [...messages];
+  // ── 3. Susun ulang messages ──
+  const SYSTEM_INSTRUCTION =
+    "Kamu adalah asisten yang hanya menjawab berdasarkan data yang diberikan. " +
+    "Jika ada [Hasil Pencarian Web] di bawah, gunakan informasi tersebut. " +
+    "Jangan mengarang. Jika tidak ada data, cukup katakan tidak tahu.";
 
-  // Masukkan info waktu/kurs ke system prompt
-  if (realtimeInfo) {
-    if (apiMessages.length > 0 && apiMessages[0].role === 'system') {
-      apiMessages[0].content += '\n\n' + realtimeInfo;
-    } else {
-      apiMessages.unshift({ role: 'system', content: realtimeInfo });
-    }
-  }
+  let apiMessages = [
+    { role: 'system', content: SYSTEM_INSTRUCTION + '\n\n' + realtimeInfo },
+    ...messages.filter(m => m.role !== 'system') // hapus system prompt bawaan
+  ];
 
   // Tempel hasil pencarian ke pesan user terakhir
   if (searchContext && lastUserMsg) {
-    lastUserMsg.content += '\n\n[Hasil pencarian Google]\n' + searchContext;
+    const apiLastUser = [...apiMessages].reverse().find(m => m.role === 'user');
+    if (apiLastUser) {
+      apiLastUser.content += '\n\n[Hasil Pencarian Web]\n' + searchContext +
+        '\n\nJawablah pertanyaan pengguna berdasarkan informasi di atas.';
+    }
   }
 
   // ── 4. Gambar (multimodal) ──
   if (image) {
-    let lastUserIdx = -1;
-    for (let i = apiMessages.length - 1; i >= 0; i--) {
-      if (apiMessages[i].role === 'user') {
-        lastUserIdx = i;
-        break;
-      }
-    }
+    const lastUserIdx = apiMessages.map(m => m.role).lastIndexOf('user');
     if (lastUserIdx !== -1) {
-      const originalText = apiMessages[lastUserIdx].content;
       apiMessages[lastUserIdx].content = [
-        { type: 'text', text: originalText },
+        { type: 'text', text: apiMessages[lastUserIdx].content },
         { type: 'image_url', image_url: { url: image } }
       ];
     }
@@ -94,7 +90,7 @@ export default async function handler(req, res) {
       headers: {
         'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://takon-ai.vercel.app',
+        'HTTP-Referer': 'https://takon-ai.vercel.app', // ganti ke domain lo
         'X-Title': 'Takon AI'
       },
       body: JSON.stringify({
@@ -129,47 +125,42 @@ export default async function handler(req, res) {
   }
 }
 
-// ─── Fungsi Scraping Google (tanpa library) ───
-async function fetchGoogleResults(query) {
+// ─── Fungsi Search Web (Google → fallback DuckDuckGo) ───
+async function searchWeb(query) {
+  // 1. Coba scraping Google (gratis, tanpa API key)
   try {
-    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}&hl=id`;
-    const html = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    const html = await fetch(
+      `https://www.google.com/search?q=${encodeURIComponent(query)}&hl=id`,
+      {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
       }
-    }).then(res => res.text());
+    ).then(res => res.text());
 
-    // Ambil blok hasil pencarian (setiap result biasanya diawali <div class="g">)
-    const results = [];
     const blocks = html.split('<div class="g">');
-    for (let i = 1; i < blocks.length && results.length < 3; i++) {
-      const block = blocks[i];
-
-      // Cari judul (biasanya di dalam <h3>)
-      const titleMatch = block.match(/<h3[^>]*>(.*?)<\/h3>/i);
-      const title = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, '').trim() : '';
-
-      // Cari cuplikan (snippet) – ambil teks setelah judul sampai link berikutnya
-      const snippetMatch = block.match(/<div class="VwiC3b[^"]*"[^>]*>(.*?)<\/div>/i) ||
-                          block.match(/<span class="aCOpRe"[^>]*>(.*?)<\/span>/i);
-      const snippet = snippetMatch ? snippetMatch[1].replace(/<[^>]+>/g, '').trim() : '';
-
-      if (title || snippet) {
-        results.push(`${title}\n${snippet}`);
-      }
+    const snippets = [];
+    for (let i = 1; i < blocks.length && snippets.length < 2; i++) {
+      const title = (blocks[i].match(/<h3[^>]*>(.*?)<\/h3>/i) || ['',''])[1].replace(/<[^>]+>/g, '').trim();
+      const snippet = (blocks[i].match(/<span class="aCOpRe"[^>]*>(.*?)<\/span>/i) || ['',''])[1].replace(/<[^>]+>/g, '').trim();
+      if (title || snippet) snippets.push(`${title}\n${snippet}`);
     }
+    if (snippets.length > 0) return snippets.join('\n\n');
+  } catch (_) {}
 
-    if (results.length > 0) {
-      return results.join('\n\n');
+  // 2. Fallback DuckDuckGo API (gratis, tanpa batas)
+  try {
+    const ddg = await fetch(
+      `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1`
+    ).then(res => res.json());
+
+    if (ddg.AbstractText) {
+      return `${ddg.AbstractText}\nSumber: ${ddg.AbstractURL}`;
     }
-    // Fallback: jika tidak dapat apa‑apa, coba ambil meta description
-    const metaMatch = html.match(/<meta name="description" content="([^"]+)"/i);
-    if (metaMatch) {
-      return `Deskripsi: ${metaMatch[1]}`;
-    }
-    return null;
-  } catch (e) {
-    console.error('Scraping error:', e);
-    return null;
-  }
+    const related = ddg.RelatedTopics || [];
+    const items = related.filter(r => r.Text).slice(0, 2).map(r => r.Text).join('\n');
+    if (items) return items;
+  } catch (_) {}
+
+  return null;
 }
