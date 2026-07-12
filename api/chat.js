@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   const {
     messages,
     image,
-    model = 'google/gemini-3-flash',
+    model = 'google/gemini-3-flash-preview',
     max_tokens = 4096,
     temperature = 0.7
   } = req.body;
