@@ -41,7 +41,7 @@ export default async function handler(req, res) {
     realtimeInfo += ']';
   } catch (_) {}
 
-  // ── 2. Ambil pesan user asli (dari frontend) ──
+  // ── 2. Ambil pesan user asli ──
   let userQuery = '';
   const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
   if (lastUserMsg && typeof lastUserMsg.content === 'string') {
@@ -55,31 +55,35 @@ export default async function handler(req, res) {
   }
 
   // ── 4. Bangun ulang messages ──
-  const SYSTEM_INSTRUCTION =
-    "Kamu adalah asisten yang **hanya boleh** menjawab berdasarkan data yang disediakan di bawah. " +
-    "Jika ada [Hasil Pencarian Web] di bawah, **wajib** menjawab menggunakan informasi tersebut. " +
-    "Jangan gunakan pengetahuan internalmu. Jika tidak ada data yang relevan, katakan: 'Maaf, saya tidak memiliki informasi terbaru untuk pertanyaan itu.'";
+  let systemPrompt = "Kamu adalah asisten yang ramah dan membantu. ";
+  if (realtimeInfo) {
+    systemPrompt += realtimeInfo + " ";
+  }
+  if (searchContext) {
+    systemPrompt += "Gunakan [Hasil Pencarian Web] berikut untuk menjawab pertanyaan pengguna secara akurat. ";
+  } else {
+    systemPrompt += "Jika tidak ada data terbaru, kamu boleh menggunakan pengetahuan internalmu, tapi sebutkan bahwa itu pengetahuan umum (bukan real‑time). ";
+  }
+  systemPrompt += "Jangan mengarang informasi yang tidak kamu ketahui.";
 
   let apiMessages = [
-    { role: 'system', content: SYSTEM_INSTRUCTION + '\n\n' + realtimeInfo },
-    ...messages.filter(m => m.role !== 'system') // buang system prompt bawaan
+    { role: 'system', content: systemPrompt },
+    ...messages.filter(m => m.role !== 'system')
   ];
 
-  // Cari index pesan user terakhir di apiMessages
+  // Tempel hasil pencarian ke pesan user terakhir
   const lastUserIdx = apiMessages.map(m => m.role).lastIndexOf('user');
   if (lastUserIdx !== -1) {
-    // Gabungkan teks asli + hasil scraping + instruksi paksa
     let finalContent = userQuery;
     if (searchContext) {
       finalContent += '\n\n[Hasil Pencarian Web]\n' + searchContext +
-                     '\n\nGunakan data di atas untuk menjawab pertanyaan pengguna.';
+                     '\n\nJawablah pertanyaan pengguna berdasarkan informasi di atas.';
     }
     apiMessages[lastUserIdx].content = finalContent;
   }
 
   // ── 5. Tambahkan gambar (jika ada) ──
   if (image && lastUserIdx !== -1) {
-    // Ubah konten user menjadi array multimodal (teks + gambar)
     apiMessages[lastUserIdx].content = [
       { type: 'text', text: apiMessages[lastUserIdx].content },
       { type: 'image_url', image_url: { url: image } }
@@ -128,17 +132,45 @@ export default async function handler(req, res) {
   }
 }
 
-// ─── Fungsi pencarian web (Google → DuckDuckGo) ───
+// ─── Fungsi pencarian web ───
 async function searchWeb(query) {
-  // Coba Google scraping
+  // 1. Coba DuckDuckGo API (paling stabil)
+  try {
+    const ddg = await fetch(
+      `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1`
+    ).then(res => res.json());
+
+    if (ddg.AbstractText) {
+      return `${ddg.AbstractText}\nSumber: ${ddg.AbstractURL}`;
+    }
+    // Gabungkan topik terkait
+    const related = ddg.RelatedTopics || [];
+    const snippets = related.filter(r => r.Text).slice(0, 3).map(r => r.Text).join('\n');
+    if (snippets) return snippets;
+  } catch (_) {}
+
+  // 2. Fallback scraping DuckDuckGo HTML
+  try {
+    const html = await fetch(`https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`, {
+      headers: { 'User-Agent': 'Mozilla/5.0' }
+    }).then(res => res.text());
+
+    // Ekstrak cuplikan hasil
+    const results = [];
+    const blocks = html.split('<div class="result">');
+    for (let i = 1; i < blocks.length && results.length < 2; i++) {
+      const title = (blocks[i].match(/<a class="result__a"[^>]*>(.*?)<\/a>/i) || ['',''])[1].replace(/<[^>]+>/g, '').trim();
+      const snippet = (blocks[i].match(/<a class="result__snippet"[^>]*>(.*?)<\/a>/i) || ['',''])[1].replace(/<[^>]+>/g, '').trim();
+      if (title || snippet) results.push(`${title}\n${snippet}`);
+    }
+    if (results.length > 0) return results.join('\n\n');
+  } catch (_) {}
+
+  // 3. Fallback terakhir: scraping Google
   try {
     const html = await fetch(
       `https://www.google.com/search?q=${encodeURIComponent(query)}&hl=id`,
-      {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        }
-      }
+      { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } }
     ).then(res => res.text());
 
     const blocks = html.split('<div class="g">');
@@ -151,19 +183,5 @@ async function searchWeb(query) {
     if (snippets.length > 0) return snippets.join('\n\n');
   } catch (_) {}
 
-  // Fallback DuckDuckGo
-  try {
-    const ddg = await fetch(
-      `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1`
-    ).then(res => res.json());
-
-    if (ddg.AbstractText) {
-      return `${ddg.AbstractText}\nSumber: ${ddg.AbstractURL}`;
-    }
-    const related = ddg.RelatedTopics || [];
-    const items = related.filter(r => r.Text).slice(0, 2).map(r => r.Text).join('\n');
-    if (items) return items;
-  } catch (_) {}
-
-  return null;
+  return null; // Semua gagal
 }
