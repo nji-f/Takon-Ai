@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   const {
     messages,
     image,
-    model = 'google/gemini-3-flash-preview', // default sesuai permintaan
+    model = 'google/gemini-3-flash-preview',
     max_tokens = 4096,
     temperature = 0.7
   } = req.body;
@@ -41,56 +41,59 @@ export default async function handler(req, res) {
     realtimeInfo += ']';
   } catch (_) {}
 
-  // ── 2. Search web otomatis ──
-  let searchContext = '';
+  // ── 2. Ambil pesan user asli (dari frontend) ──
+  let userQuery = '';
   const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
-
-  if (lastUserMsg && typeof lastUserMsg.content === 'string' && !image) {
-    const query = lastUserMsg.content.trim();
-    if (query.length >= 4) {
-      searchContext = await searchWeb(query);
-    }
+  if (lastUserMsg && typeof lastUserMsg.content === 'string') {
+    userQuery = lastUserMsg.content.trim();
   }
 
-  // ── 3. Susun ulang messages ──
+  // ── 3. Cari data dari web ──
+  let searchContext = '';
+  if (userQuery.length >= 4 && !image) {
+    searchContext = await searchWeb(userQuery);
+  }
+
+  // ── 4. Bangun ulang messages ──
   const SYSTEM_INSTRUCTION =
-    "Kamu adalah asisten yang hanya menjawab berdasarkan data yang diberikan. " +
-    "Jika ada [Hasil Pencarian Web] di bawah, gunakan informasi tersebut. " +
-    "Jangan mengarang. Jika tidak ada data, cukup katakan tidak tahu.";
+    "Kamu adalah asisten yang **hanya boleh** menjawab berdasarkan data yang disediakan di bawah. " +
+    "Jika ada [Hasil Pencarian Web] di bawah, **wajib** menjawab menggunakan informasi tersebut. " +
+    "Jangan gunakan pengetahuan internalmu. Jika tidak ada data yang relevan, katakan: 'Maaf, saya tidak memiliki informasi terbaru untuk pertanyaan itu.'";
 
   let apiMessages = [
     { role: 'system', content: SYSTEM_INSTRUCTION + '\n\n' + realtimeInfo },
-    ...messages.filter(m => m.role !== 'system') // hapus system prompt bawaan
+    ...messages.filter(m => m.role !== 'system') // buang system prompt bawaan
   ];
 
-  // Tempel hasil pencarian ke pesan user terakhir
-  if (searchContext && lastUserMsg) {
-    const apiLastUser = [...apiMessages].reverse().find(m => m.role === 'user');
-    if (apiLastUser) {
-      apiLastUser.content += '\n\n[Hasil Pencarian Web]\n' + searchContext +
-        '\n\nJawablah pertanyaan pengguna berdasarkan informasi di atas.';
+  // Cari index pesan user terakhir di apiMessages
+  const lastUserIdx = apiMessages.map(m => m.role).lastIndexOf('user');
+  if (lastUserIdx !== -1) {
+    // Gabungkan teks asli + hasil scraping + instruksi paksa
+    let finalContent = userQuery;
+    if (searchContext) {
+      finalContent += '\n\n[Hasil Pencarian Web]\n' + searchContext +
+                     '\n\nGunakan data di atas untuk menjawab pertanyaan pengguna.';
     }
+    apiMessages[lastUserIdx].content = finalContent;
   }
 
-  // ── 4. Gambar (multimodal) ──
-  if (image) {
-    const lastUserIdx = apiMessages.map(m => m.role).lastIndexOf('user');
-    if (lastUserIdx !== -1) {
-      apiMessages[lastUserIdx].content = [
-        { type: 'text', text: apiMessages[lastUserIdx].content },
-        { type: 'image_url', image_url: { url: image } }
-      ];
-    }
+  // ── 5. Tambahkan gambar (jika ada) ──
+  if (image && lastUserIdx !== -1) {
+    // Ubah konten user menjadi array multimodal (teks + gambar)
+    apiMessages[lastUserIdx].content = [
+      { type: 'text', text: apiMessages[lastUserIdx].content },
+      { type: 'image_url', image_url: { url: image } }
+    ];
   }
 
-  // ── 5. Panggil OpenRouter ──
+  // ── 6. Panggil OpenRouter ──
   try {
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://takon-ai.vercel.app', // ganti ke domain lo
+        'HTTP-Referer': 'https://takon-ai.vercel.app', // ganti dengan domainmu
         'X-Title': 'Takon AI'
       },
       body: JSON.stringify({
@@ -125,9 +128,9 @@ export default async function handler(req, res) {
   }
 }
 
-// ─── Fungsi Search Web (Google → fallback DuckDuckGo) ───
+// ─── Fungsi pencarian web (Google → DuckDuckGo) ───
 async function searchWeb(query) {
-  // 1. Coba scraping Google (gratis, tanpa API key)
+  // Coba Google scraping
   try {
     const html = await fetch(
       `https://www.google.com/search?q=${encodeURIComponent(query)}&hl=id`,
@@ -148,7 +151,7 @@ async function searchWeb(query) {
     if (snippets.length > 0) return snippets.join('\n\n');
   } catch (_) {}
 
-  // 2. Fallback DuckDuckGo API (gratis, tanpa batas)
+  // Fallback DuckDuckGo
   try {
     const ddg = await fetch(
       `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1`
